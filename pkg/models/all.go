@@ -2,6 +2,7 @@ package models
 
 var (
 	AllModels = []interface{}{
+		&Migration{},
 		&Login{},
 		&Registration{},
 		&EmailVerification{},
