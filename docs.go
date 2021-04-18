@@ -476,6 +476,68 @@ var doc = `{
                 }
             }
         },
+        "/bank_accounts/{bankAccountId}/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Lists the transactions for the specified bank account Id. Transactions are returned sorted by the date they were authorized (descending) and then by their numeric Id (descending). This means that transactions that were first seen later will be higher in the list than they may have actually occurred.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "List Transactions",
+                "operationId": "list-transactions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Account ID",
+                        "name": "bankAccountId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Specifies the number of transactions to return in the result, default is 25. Max is 100.",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The number of transactions to skip before returning any.",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Transaction"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/config": {
             "get": {
                 "description": "Provides the configuration that should be used by the frontend application or UI.",
@@ -490,6 +552,27 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Just a simple health check endpoint. This is not used at all in the frontend of the application and is meant to be used in containers to determine if the primary API listener is working.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Check API Health",
+                "operationId": "api-health",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.HealthResponse"
+                        }
                     }
                 }
             }
@@ -833,6 +916,69 @@ var doc = `{
                 }
             }
         },
+        "models.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "authorizedDate": {
+                    "type": "string"
+                },
+                "bankAccount": {
+                    "$ref": "#/definitions/models.BankAccount"
+                },
+                "bankAccountId": {
+                    "type": "integer"
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "isPending": {
+                    "type": "boolean"
+                },
+                "merchantName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "originalCategories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "originalMerchantName": {
+                    "type": "string"
+                },
+                "originalName": {
+                    "type": "string"
+                },
+                "spending": {
+                    "$ref": "#/definitions/models.Spending"
+                },
+                "spendingAmount": {
+                    "description": "SpendingAmount is the amount deducted from the expense this transaction was spent from. This is used when a\ntransaction is more than the expense currently has allocated. If the transaction were to be deleted or changed we\nwant to make sure we return the correct amount to the expense.",
+                    "type": "integer"
+                },
+                "spendingId": {
+                    "type": "integer"
+                },
+                "transactionId": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -929,6 +1075,19 @@ var doc = `{
                     "description": "The original name of the bank account from when it was created. This name cannot be changed after the bank\naccount is created. This is primarily due to bank account's coming from a 3rd party provider like Plaid. But to\nreduce the amount of logic in the application the same rule applies for manual links as well.",
                     "type": "string",
                     "example": "Checking Account #1"
+                }
+            }
+        },
+        "swag.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "apiHealthy": {
+                    "description": "This will always be true. If the API is not healthy then an error is returned to the client or the request will\nsimply not be served.",
+                    "type": "boolean"
+                },
+                "dbHealthy": {
+                    "description": "Indicates whether or not the current API process handling the request can communicate with the PostgreSQL\ndatabase.",
+                    "type": "boolean"
                 }
             }
         }

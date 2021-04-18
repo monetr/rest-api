@@ -183,6 +183,51 @@ definitions:
       usedAmount:
         type: integer
     type: object
+  models.Transaction:
+    properties:
+      amount:
+        type: integer
+      authorizedDate:
+        type: string
+      bankAccount:
+        $ref: '#/definitions/models.BankAccount'
+      bankAccountId:
+        type: integer
+      categories:
+        items:
+          type: string
+        type: array
+      createdAt:
+        type: string
+      date:
+        type: string
+      isPending:
+        type: boolean
+      merchantName:
+        type: string
+      name:
+        type: string
+      originalCategories:
+        items:
+          type: string
+        type: array
+      originalMerchantName:
+        type: string
+      originalName:
+        type: string
+      spending:
+        $ref: '#/definitions/models.Spending'
+      spendingAmount:
+        description: |-
+          SpendingAmount is the amount deducted from the expense this transaction was spent from. This is used when a
+          transaction is more than the expense currently has allocated. If the transaction were to be deleted or changed we
+          want to make sure we return the correct amount to the expense.
+        type: integer
+      spendingId:
+        type: integer
+      transactionId:
+        type: integer
+    type: object
   models.User:
     properties:
       account:
@@ -275,6 +320,19 @@ definitions:
           reduce the amount of logic in the application the same rule applies for manual links as well.
         example: 'Checking Account #1'
         type: string
+    type: object
+  swag.HealthResponse:
+    properties:
+      apiHealthy:
+        description: |-
+          This will always be true. If the API is not healthy then an error is returned to the client or the request will
+          simply not be served.
+        type: boolean
+      dbHealthy:
+        description: |-
+          Indicates whether or not the current API process handling the request can communicate with the PostgreSQL
+          database.
+        type: boolean
     type: object
 host: api.monetr.app
 info:
@@ -572,6 +630,46 @@ paths:
       summary: Transfer allocated funds to or from a spending object.
       tags:
       - Spending
+  /bank_accounts/{bankAccountId}/transactions:
+    get:
+      description: Lists the transactions for the specified bank account Id. Transactions are returned sorted by the date they were authorized (descending) and then by their numeric Id (descending). This means that transactions that were first seen later will be higher in the list than they may have actually occurred.
+      operationId: list-transactions
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: Specifies the number of transactions to return in the result, default is 25. Max is 100.
+        in: query
+        name: limit
+        type: integer
+      - description: The number of transactions to skip before returning any.
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Transaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Transactions
+      tags:
+      - Transactions
   /config:
     get:
       description: Provides the configuration that should be used by the frontend application or UI.
@@ -584,6 +682,20 @@ paths:
       summary: Get Config
       tags:
       - Config
+  /health:
+    get:
+      description: Just a simple health check endpoint. This is not used at all in the frontend of the application and is meant to be used in containers to determine if the primary API listener is working.
+      operationId: api-health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.HealthResponse'
+      summary: Check API Health
+      tags:
+      - Health
   /links:
     get:
       description: Lists all of the links for the currently authenticated user.
