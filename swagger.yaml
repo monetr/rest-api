@@ -1,0 +1,634 @@
+definitions:
+  controller.ApiError:
+    properties:
+      error:
+        type: string
+    type: object
+  controller.InvalidBankAccountIdError:
+    properties:
+      error:
+        example: invalid bank account Id provided
+        type: string
+    type: object
+  controller.SpendingTransfer:
+    properties:
+      amount:
+        type: integer
+      fromSpendingId:
+        type: integer
+      toSpendingId:
+        type: integer
+    type: object
+  models.Account:
+    properties:
+      accountId:
+        type: integer
+      timezone:
+        type: string
+    type: object
+  models.BankAccount:
+    properties:
+      accountSubType:
+        example: checking
+        type: string
+      accountType:
+        example: depository
+        type: string
+      availableBalance:
+        example: 102356
+        type: integer
+      bankAccountId:
+        example: 1234
+        type: integer
+      currentBalance:
+        description: |-
+          Current Balance is a 64-bit representation of a bank account's total balance (excluding pending transactions) in
+          the form of an integer. To derive a decimal value divide this value by 100.
+        example: 102400
+        type: integer
+      linkId:
+        example: 2345
+        type: integer
+      mask:
+        example: "0000"
+        type: string
+      name:
+        example: Checking Account
+        type: string
+      officialName:
+        example: US Bank - Checking Account
+        type: string
+      originalName:
+        example: 'Checking Account #1'
+        type: string
+    type: object
+  models.EmailVerification:
+    properties:
+      createdAt:
+        type: string
+      emailAddress:
+        type: string
+      expiresAt:
+        type: string
+      isVerified:
+        type: boolean
+      verifiedAt:
+        type: string
+    type: object
+  models.FundingSchedule:
+    properties:
+      bankAccountId:
+        type: integer
+      description:
+        type: string
+      fundingScheduleId:
+        type: integer
+      lastOccurrence:
+        type: string
+      name:
+        type: string
+      nextOccurrence:
+        type: string
+      rule:
+        example: FREQ=MONTHLY;BYMONTHDAY=15,-1
+        type: string
+    type: object
+  models.Link:
+    properties:
+      createdAt:
+        type: string
+      createdByUserId:
+        type: integer
+      customInstitutionName:
+        type: string
+      institutionName:
+        type: string
+      linkId:
+        type: integer
+      linkType:
+        type: integer
+      updatedAt:
+        type: string
+      updatedByUser:
+        $ref: '#/definitions/models.User'
+      updatedByUserId:
+        type: integer
+    type: object
+  models.Login:
+    properties:
+      email:
+        type: string
+      emailVerifications:
+        items:
+          $ref: '#/definitions/models.EmailVerification'
+        type: array
+      isEmailVerified:
+        type: boolean
+      isPhoneVerified:
+        type: boolean
+      loginId:
+        type: integer
+      phoneVerifications:
+        items:
+          $ref: '#/definitions/models.PhoneVerification'
+        type: array
+    type: object
+  models.PhoneNumber:
+    type: object
+  models.PhoneVerification:
+    properties:
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      isVerified:
+        type: boolean
+      phoneNumber:
+        $ref: '#/definitions/models.PhoneNumber'
+      verifiedAt:
+        type: string
+    type: object
+  models.Spending:
+    properties:
+      bankAccountId:
+        type: integer
+      currentAmount:
+        type: integer
+      dateCreated:
+        type: string
+      description:
+        type: string
+      fundingScheduleId:
+        type: integer
+      isBehind:
+        type: boolean
+      isPaused:
+        type: boolean
+      lastRecurrence:
+        type: string
+      name:
+        type: string
+      nextContributionAmount:
+        type: integer
+      nextRecurrence:
+        type: string
+      recurrenceRule:
+        type: string
+      spendingId:
+        type: integer
+      spendingType:
+        type: integer
+      targetAmount:
+        type: integer
+      usedAmount:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      account:
+        $ref: '#/definitions/models.Account'
+      accountId:
+        type: integer
+      firstName:
+        type: string
+      lastName:
+        type: string
+      login:
+        $ref: '#/definitions/models.Login'
+      loginId:
+        type: integer
+      userId:
+        type: integer
+    type: object
+  repository.Balances:
+    properties:
+      available:
+        type: integer
+      bankAccountId:
+        type: integer
+      current:
+        type: integer
+      expenses:
+        type: integer
+      goals:
+        type: integer
+      safe:
+        type: integer
+    type: object
+  swag.BankAccountCreateRequest:
+    properties:
+      accountSubType:
+        description: |-
+          Sub Type can have numerous values, but given that the application currently only supports depository the most
+          common values you will see or use are; checking and savings. Other supported types (albeit untested) are; hsa,
+          cd, money market, paypal, prepaid, cash management and ebt.
+          More information on these can be found here: https://plaid.com/docs/api/accounts/#account-type-schema
+        example: checking
+        type: string
+      accountType:
+        description: |-
+          Account Type can be; depository, credit, loan, investment or other. At the time of writing this the application
+          will only support depository. Other types may be supported in the future.
+        example: depository
+        type: string
+      availableBalance:
+        description: |-
+          The balance available in the account represented as whole cents. This is typically the current balance minus the
+          total value of all pending transactions. This value is not calculated in the API and is retrieved from Plaid or
+          maintained manually for manual links.
+        example: 102356
+        type: integer
+      currentBalance:
+        description: The current balance in the account as whole cents without taking into consideration any pending transactions.
+        example: 102400
+        type: integer
+      linkId:
+        description: |-
+          The numeric Id of the Link this bank account is associated with, if the link is manual then bank bank accounts
+          can be created manually via the API. If the Link is associated with Plaid though then bank accounts can only be
+          created through the Plaid interface. At the time of writing this there is not a way to add or remove a bank
+          account from an existing Plaid Link.
+        example: 2345
+        type: integer
+      mask:
+        description: |-
+          Last 4 digits of the bank account's account number. We do not store the full bank account number or any other
+          sensitive account information.
+        example: "9876"
+        type: string
+      name:
+        description: |-
+          Name of the account, this is different than the `originalName`. This field can be changed later on while the
+          `originalName` field cannot be changed once the account is created.
+        example: Checking Account
+        type: string
+      officialName:
+        description: |-
+          Official name is only used with bank accounts coming from Plaid. It is another name that Plaid uses for an
+          account.
+        example: US Bank - Checking Account
+        type: string
+      originalName:
+        description: |-
+          The original name of the bank account from when it was created. This name cannot be changed after the bank
+          account is created. This is primarily due to bank account's coming from a 3rd party provider like Plaid. But to
+          reduce the amount of logic in the application the same rule applies for manual links as well.
+        example: 'Checking Account #1'
+        type: string
+    type: object
+host: api.harderthanitneedstobe.com
+info:
+  contact:
+    email: no-reply@harderthanitneedstobe.com
+    name: Support
+    url: http://github.com/harderthanitneedstobe/rest-api
+  description: This is the REST API for our budgeting application.
+  license:
+    name: Business Source License 1.1
+    url: https://github.com/HarderThanItNeedsToBe/rest-api/blob/main/LICENSE
+  title: Harder Than It Needs To Be's REST API
+  version: "0.0"
+paths:
+  /authentication/login:
+    post:
+      description: Authenticate a user.
+      operationId: login
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      summary: Login
+      tags:
+      - Authentication
+  /bank_accounts:
+    get:
+      description: Lists all of the bank accounts for the currently authenticated user.
+      operationId: list-all-bank-accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BankAccount'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: List All Bank Accounts
+      tags:
+      - Bank Accounts
+    post:
+      consumes:
+      - application/json
+      description: 'Create a bank account for the provided link. Note: Bank accounts can only be created this way for manual links. Attempting to create a bank account for a link that is associated with Plaid will result in an error.'
+      operationId: create-bank-account
+      parameters:
+      - description: New Bank Account
+        in: body
+        name: newBankAccount
+        required: true
+        schema:
+          $ref: '#/definitions/swag.BankAccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BankAccount'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Bank Account
+      tags:
+      - Bank Accounts
+  /bank_accounts/{bankAccountId}/balances:
+    get:
+      description: Get the balances for the specified bank account (including calculated balances).
+      operationId: get-bank-account-balances
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.Balances'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Bank Account Balances
+      tags:
+      - Bank Accounts
+  /bank_accounts/{bankAccountId}/funding_schedules:
+    get:
+      description: List all of the funding schedule's for the current bank account.
+      operationId: list-funding-schedules
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FundingSchedule'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Funding Schedules
+      tags:
+      - Funding Schedules
+    post:
+      consumes:
+      - application/json
+      operationId: create-funding-schedule
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: New Funding Schedule
+        in: body
+        name: fundingSchedule
+        required: true
+        schema:
+          $ref: '#/definitions/models.FundingSchedule'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FundingSchedule'
+        "400":
+          description: Malformed JSON or invalid RRule.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Failed to persist data.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a funding schedule for the specified bank account.
+      tags:
+      - Funding Schedules
+  /bank_accounts/{bankAccountId}/spending:
+    get:
+      description: List all of the spending for the specified bank account.
+      operationId: list-spending
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Spending'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Spending
+    post:
+      consumes:
+      - application/json
+      operationId: create-spending
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: New spending
+        in: body
+        name: Spending
+        required: true
+        schema:
+          $ref: '#/definitions/models.Spending'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Spending'
+        "400":
+          description: Malformed JSON or invalid RRule.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Failed to persist data.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create an spending for the specified bank account.
+      tags:
+      - Spending
+    put:
+      consumes:
+      - application/json
+      operationId: update-spending
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: Updated spending
+        in: body
+        name: Spending
+        required: true
+        schema:
+          $ref: '#/definitions/models.Spending'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Spending'
+        "400":
+          description: Malformed JSON or invalid RRule.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Failed to persist data.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update an existing expense or goal spending object.
+      tags:
+      - Spending
+  /bank_accounts/{bankAccountId}/spending/transfer:
+    post:
+      consumes:
+      - application/json
+      operationId: transfer-spending
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: Transfer
+        in: body
+        name: Spending
+        required: true
+        schema:
+          $ref: '#/definitions/controller.SpendingTransfer'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Spending'
+            type: array
+        "400":
+          description: Malformed JSON or invalid RRule.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Failed to persist data.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Transfer allocated funds to or from a spending object.
+      tags:
+      - Spending
+  /config:
+    get:
+      description: Provides the configuration that should be used by the frontend application or UI.
+      operationId: app-config
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Get Config
+      tags:
+      - Config
+  /links:
+    get:
+      description: Lists all of the links for the currently authenticated user.
+      operationId: list-all-links
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Link'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: List All Links
+      tags:
+      - Links
+    post:
+      description: Create a manual link.
+      operationId: create-link
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Link'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create A Link
+      tags:
+      - Links
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: H-Token
+    type: apiKey
+swagger: "2.0"
