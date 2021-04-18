@@ -1098,7 +1098,13 @@ var doc = `{
             "name": "H-Token",
             "in": "header"
         }
-    }
+    },
+    "tags": [
+        {
+            "description": "Funding Schedules are created by the user to tell us when money should be taken from their account to fund their goals and expenses.",
+            "name": "Funding Schedules"
+        }
+    ]
 }`
 
 type swaggerInfo struct {
