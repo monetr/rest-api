@@ -276,17 +276,16 @@ definitions:
         example: 'Checking Account #1'
         type: string
     type: object
-host: api.harderthanitneedstobe.com
+host: api.monetr.app
 info:
   contact:
-    email: no-reply@harderthanitneedstobe.com
     name: Support
-    url: http://github.com/harderthanitneedstobe/rest-api
+    url: http://github.com/monetrapp/rest-api
   description: This is the REST API for our budgeting application.
   license:
     name: Business Source License 1.1
-    url: https://github.com/HarderThanItNeedsToBe/rest-api/blob/main/LICENSE
-  title: Harder Than It Needs To Be's REST API
+    url: https://github.com/monetrapp/rest-api/blob/main/LICENSE
+  title: monetr's REST API
   version: "0.0"
 paths:
   /authentication/login:

@@ -2,19 +2,18 @@
     "swagger": "2.0",
     "info": {
         "description": "This is the REST API for our budgeting application.",
-        "title": "Harder Than It Needs To Be's REST API",
+        "title": "monetr's REST API",
         "contact": {
             "name": "Support",
-            "url": "http://github.com/harderthanitneedstobe/rest-api",
-            "email": "no-reply@harderthanitneedstobe.com"
+            "url": "http://github.com/monetrapp/rest-api"
         },
         "license": {
             "name": "Business Source License 1.1",
-            "url": "https://github.com/HarderThanItNeedsToBe/rest-api/blob/main/LICENSE"
+            "url": "https://github.com/monetrapp/rest-api/blob/main/LICENSE"
         },
         "version": "0.0"
     },
-    "host": "api.harderthanitneedstobe.com",
+    "host": "api.monetr.app",
     "paths": {
         "/authentication/login": {
             "post": {

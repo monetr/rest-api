@@ -20,12 +20,11 @@ var doc = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "Support",
-            "url": "http://github.com/harderthanitneedstobe/rest-api",
-            "email": "no-reply@harderthanitneedstobe.com"
+            "url": "http://github.com/monetrapp/rest-api"
         },
         "license": {
             "name": "Business Source License 1.1",
-            "url": "https://github.com/HarderThanItNeedsToBe/rest-api/blob/main/LICENSE"
+            "url": "https://github.com/monetrapp/rest-api/blob/main/LICENSE"
         },
         "version": "{{.Version}}"
     },
@@ -955,10 +954,10 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "0.0",
-	Host:        "api.harderthanitneedstobe.com",
+	Host:        "api.monetr.app",
 	BasePath:    "",
 	Schemes:     []string{},
-	Title:       "Harder Than It Needs To Be's REST API",
+	Title:       "monetr's REST API",
 	Description: "This is the REST API for our budgeting application.",
 }
 
