@@ -736,26 +736,6 @@ var doc = `{
                 }
             }
         },
-        "models.EmailVerification": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "emailAddress": {
-                    "type": "string"
-                },
-                "expiresAt": {
-                    "type": "string"
-                },
-                "isVerified": {
-                    "type": "boolean"
-                },
-                "verifiedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "models.FundingSchedule": {
             "type": "object",
             "properties": {
@@ -821,12 +801,6 @@ var doc = `{
                 "email": {
                     "type": "string"
                 },
-                "emailVerifications": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.EmailVerification"
-                    }
-                },
                 "isEmailVerified": {
                     "type": "boolean"
                 },
@@ -835,35 +809,6 @@ var doc = `{
                 },
                 "loginId": {
                     "type": "integer"
-                },
-                "phoneVerifications": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.PhoneVerification"
-                    }
-                }
-            }
-        },
-        "models.PhoneNumber": {
-            "type": "object"
-        },
-        "models.PhoneVerification": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "expiresAt": {
-                    "type": "string"
-                },
-                "isVerified": {
-                    "type": "boolean"
-                },
-                "phoneNumber": {
-                    "$ref": "#/definitions/models.PhoneNumber"
-                },
-                "verifiedAt": {
-                    "type": "string"
                 }
             }
         },

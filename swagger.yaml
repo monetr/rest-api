@@ -62,19 +62,6 @@ definitions:
         example: 'Checking Account #1'
         type: string
     type: object
-  models.EmailVerification:
-    properties:
-      createdAt:
-        type: string
-      emailAddress:
-        type: string
-      expiresAt:
-        type: string
-      isVerified:
-        type: boolean
-      verifiedAt:
-        type: string
-    type: object
   models.FundingSchedule:
     properties:
       bankAccountId:
@@ -118,35 +105,12 @@ definitions:
     properties:
       email:
         type: string
-      emailVerifications:
-        items:
-          $ref: '#/definitions/models.EmailVerification'
-        type: array
       isEmailVerified:
         type: boolean
       isPhoneVerified:
         type: boolean
       loginId:
         type: integer
-      phoneVerifications:
-        items:
-          $ref: '#/definitions/models.PhoneVerification'
-        type: array
-    type: object
-  models.PhoneNumber:
-    type: object
-  models.PhoneVerification:
-    properties:
-      createdAt:
-        type: string
-      expiresAt:
-        type: string
-      isVerified:
-        type: boolean
-      phoneNumber:
-        $ref: '#/definitions/models.PhoneNumber'
-      verifiedAt:
-        type: string
     type: object
   models.Spending:
     properties:
