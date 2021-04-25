@@ -17,7 +17,7 @@ jobs:
         run: |
           echo ::set-output name=POST_TAG::$(git rev-parse HEAD)
       - name: Build and push ghcr.io
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -26,7 +26,7 @@ jobs:
           tags: latest,${{ steps.tag.outputs.POST_TAG }}
           repository: monetrapp/rest-api
       - name: Build and push containers.monetr.dev
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           registry: containers.monetr.dev
           username: ${{ secrets.containers_push_username }}
