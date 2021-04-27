@@ -801,11 +801,17 @@ var doc = `{
                 "email": {
                     "type": "string"
                 },
+                "firstName": {
+                    "type": "string"
+                },
                 "isEmailVerified": {
                     "type": "boolean"
                 },
                 "isPhoneVerified": {
                     "type": "boolean"
+                },
+                "lastName": {
+                    "type": "string"
                 },
                 "loginId": {
                     "type": "integer"
