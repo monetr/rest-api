@@ -1,0 +1,16 @@
+name: Daily Release
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+
+jobs:
+  release:
+    name: Release
+    container: ghcr.io/monetrapp/build-containers/ubuntu:20.04-2021.04.29
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: 'main'
+      - run: ./tools/releasenotes.sh
