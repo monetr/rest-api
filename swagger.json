@@ -629,6 +629,96 @@
                     }
                 }
             }
+        },
+        "/plaid/setup/wait/{jobId:string}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Long poll endpoint that will timeout if data has not yet been pulled. Or will return 200 if data is ready.",
+                "tags": [
+                    "Plaid"
+                ],
+                "summary": "Wait For Plaid Account Data",
+                "operationId": "wait-for-plaid-data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job ID returned from the token callback endpoint",
+                        "name": "jobId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "408": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/plaid/token/callback": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Receives the public token after a user has authenticated their bank account to exchange with plaid.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plaid"
+                ],
+                "summary": "Plaid Token Callback",
+                "operationId": "plaid-token-callback",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/plaid/token/new": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Generates a link token from Plaid to be used to authenticate a user's bank account with our application.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plaid"
+                ],
+                "summary": "New Plaid Token",
+                "operationId": "new-plaid-token",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

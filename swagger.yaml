@@ -761,6 +761,62 @@ paths:
       summary: Create A Link
       tags:
       - Links
+  /plaid/setup/wait/{jobId:string}:
+    get:
+      description: Long poll endpoint that will timeout if data has not yet been pulled. Or will return 200 if data is ready.
+      operationId: wait-for-plaid-data
+      parameters:
+      - description: Job ID returned from the token callback endpoint
+        in: path
+        name: jobId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        "408":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Wait For Plaid Account Data
+      tags:
+      - Plaid
+  /plaid/token/callback:
+    post:
+      description: Receives the public token after a user has authenticated their bank account to exchange with plaid.
+      operationId: plaid-token-callback
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Plaid Token Callback
+      tags:
+      - Plaid
+  /plaid/token/new:
+    get:
+      description: Generates a link token from Plaid to be used to authenticate a user's bank account with our application.
+      operationId: new-plaid-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: New Plaid Token
+      tags:
+      - Plaid
 securityDefinitions:
   ApiKeyAuth:
     in: header
