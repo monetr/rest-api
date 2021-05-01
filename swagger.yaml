@@ -302,6 +302,13 @@ definitions:
           database.
         type: boolean
     type: object
+  swag.PlaidTokenCallbackResponse:
+    properties:
+      jobId:
+        type: string
+      success:
+        type: boolean
+    type: object
   swag.UpdateSpendingRequest:
     properties:
       description:
@@ -789,7 +796,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.PlaidTokenCallbackResponse'
         "500":
           description: Internal Server Error
           schema:

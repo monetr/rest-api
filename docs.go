@@ -696,7 +696,10 @@ var doc = `{
                 "operationId": "plaid-token-callback",
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.PlaidTokenCallbackResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1132,6 +1135,17 @@ var doc = `{
                 },
                 "dbHealthy": {
                     "description": "Indicates whether or not the current API process handling the request can communicate with the PostgreSQL\ndatabase.",
+                    "type": "boolean"
+                }
+            }
+        },
+        "swag.PlaidTokenCallbackResponse": {
+            "type": "object",
+            "properties": {
+                "jobId": {
+                    "type": "string"
+                },
+                "success": {
                     "type": "boolean"
                 }
             }
