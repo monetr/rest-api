@@ -542,6 +542,58 @@ var doc = `{
                 }
             }
         },
+        "/billing/create_checkout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a checkout session for the user to enter billing information in and for us to associate it with a new subscription object.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Billing"
+                ],
+                "summary": "Create Checkout Session",
+                "operationId": "create-checkout-session",
+                "parameters": [
+                    {
+                        "description": "New Checkout Session",
+                        "name": "createCheckoutSession",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.CreateCheckoutSessionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.CreateCheckoutSessionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/config": {
             "get": {
                 "description": "Provides the configuration that should be used by the frontend application or UI.",
@@ -1123,6 +1175,24 @@ var doc = `{
                     "description": "The original name of the bank account from when it was created. This name cannot be changed after the bank\naccount is created. This is primarily due to bank account's coming from a 3rd party provider like Plaid. But to\nreduce the amount of logic in the application the same rule applies for manual links as well.",
                     "type": "string",
                     "example": "Checking Account #1"
+                }
+            }
+        },
+        "swag.CreateCheckoutSessionRequest": {
+            "type": "object",
+            "properties": {
+                "priceId": {
+                    "description": "PriceId represents the Id of the price object for the subscription. Price objects are associated with a single\nproduct. So a price represents both how much is being paid, and what is being paid for.",
+                    "type": "integer"
+                }
+            }
+        },
+        "swag.CreateCheckoutSessionResponse": {
+            "type": "object",
+            "properties": {
+                "sessionId": {
+                    "description": "The value returned from stripe once a checkout session has been created. This is used on the frontend for the\nuser to checkout and pay for their chosen plan.",
+                    "type": "string"
                 }
             }
         },

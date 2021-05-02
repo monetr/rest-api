@@ -289,6 +289,22 @@ definitions:
         example: 'Checking Account #1'
         type: string
     type: object
+  swag.CreateCheckoutSessionRequest:
+    properties:
+      priceId:
+        description: |-
+          PriceId represents the Id of the price object for the subscription. Price objects are associated with a single
+          product. So a price represents both how much is being paid, and what is being paid for.
+        type: integer
+    type: object
+  swag.CreateCheckoutSessionResponse:
+    properties:
+      sessionId:
+        description: |-
+          The value returned from stripe once a checkout session has been created. This is used on the frontend for the
+          user to checkout and pay for their chosen plan.
+        type: string
+    type: object
   swag.HealthResponse:
     properties:
       apiHealthy:
@@ -701,6 +717,39 @@ paths:
       summary: List Transactions
       tags:
       - Transactions
+  /billing/create_checkout:
+    post:
+      consumes:
+      - application/json
+      description: Create a checkout session for the user to enter billing information in and for us to associate it with a new subscription object.
+      operationId: create-checkout-session
+      parameters:
+      - description: New Checkout Session
+        in: body
+        name: createCheckoutSession
+        required: true
+        schema:
+          $ref: '#/definitions/swag.CreateCheckoutSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.CreateCheckoutSessionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Checkout Session
+      tags:
+      - Billing
   /config:
     get:
       description: Provides the configuration that should be used by the frontend application or UI.
