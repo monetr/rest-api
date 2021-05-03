@@ -1264,7 +1264,7 @@ var doc = `{
     "securityDefinitions": {
         "ApiKeyAuth": {
             "type": "apiKey",
-            "name": "H-Token",
+            "name": "M-Token",
             "in": "header"
         }
     },

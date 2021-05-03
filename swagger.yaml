@@ -878,7 +878,7 @@ paths:
 securityDefinitions:
   ApiKeyAuth:
     in: header
-    name: H-Token
+    name: M-Token
     type: apiKey
 swagger: "2.0"
 tags:
