@@ -230,6 +230,21 @@ definitions:
       safe:
         type: integer
     type: object
+  repository.FundingStats:
+    properties:
+      bankAccountId:
+        type: integer
+      fundingScheduleId:
+        type: integer
+      nextExpenseContribution:
+        type: integer
+      nextGoalContribution:
+        type: integer
+      numberOfExpenses:
+        type: integer
+      numberOfGoals:
+        type: integer
+    type: object
   swag.BankAccountCreateRequest:
     properties:
       accountSubType:
@@ -547,6 +562,34 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create a funding schedule for the specified bank account.
+      tags:
+      - Funding Schedules
+  /bank_accounts/{bankAccountId}/funding_schedules/stats:
+    get:
+      description: Retrieve information about how much spending objects will receive on the next funding schedule.
+      operationId: get-funding-status
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/repository.FundingStats'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Funding Stats
       tags:
       - Funding Schedules
   /bank_accounts/{bankAccountId}/spending:

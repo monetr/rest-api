@@ -250,6 +250,50 @@
                 }
             }
         },
+        "/bank_accounts/{bankAccountId}/funding_schedules/stats": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve information about how much spending objects will receive on the next funding schedule.",
+                "tags": [
+                    "Funding Schedules"
+                ],
+                "summary": "Get Funding Stats",
+                "operationId": "get-funding-status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Account ID",
+                        "name": "bankAccountId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/repository.FundingStats"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/bank_accounts/{bankAccountId}/spending": {
             "get": {
                 "security": [
@@ -1111,6 +1155,29 @@
                     "type": "integer"
                 },
                 "safe": {
+                    "type": "integer"
+                }
+            }
+        },
+        "repository.FundingStats": {
+            "type": "object",
+            "properties": {
+                "bankAccountId": {
+                    "type": "integer"
+                },
+                "fundingScheduleId": {
+                    "type": "integer"
+                },
+                "nextExpenseContribution": {
+                    "type": "integer"
+                },
+                "nextGoalContribution": {
+                    "type": "integer"
+                },
+                "numberOfExpenses": {
+                    "type": "integer"
+                },
+                "numberOfGoals": {
                     "type": "integer"
                 }
             }
