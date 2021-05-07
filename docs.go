@@ -698,7 +698,7 @@ var doc = `{
                 }
             }
         },
-        "/plaid/setup/wait/{linkId:uint64}": {
+        "/plaid/link/setup/wait/{linkId:uint64}": {
             "get": {
                 "security": [
                     {
