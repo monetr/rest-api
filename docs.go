@@ -34,6 +34,9 @@ var doc = `{
         "/authentication/login": {
             "post": {
                 "description": "Authenticate a user.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -42,7 +45,89 @@ var doc = `{
                 ],
                 "summary": "Login",
                 "operationId": "login",
+                "parameters": [
+                    {
+                        "description": "User Login Request",
+                        "name": "Login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.LoginRequest"
+                        }
+                    }
+                ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/authentication/register": {
+            "post": {
+                "description": "Register creates a new login, user and account. Logins are used for authentication, users tie authentication to an account, and accounts hold budgeting data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register",
+                "operationId": "register",
+                "parameters": [
+                    {
+                        "description": "New User Registration",
+                        "name": "Registration",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -318,6 +403,12 @@ var doc = `{
                     }
                 ],
                 "description": "List all of the spending for the specified bank account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Spending"
                 ],
@@ -1287,6 +1378,36 @@ var doc = `{
                 }
             }
         },
+        "swag.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "captcha": {
+                    "description": "ReCAPTCHA value from validation. Required if ` + "`" + `verifyLogin` + "`" + ` is enabled on the server.",
+                    "type": "string",
+                    "example": "03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S..."
+                },
+                "email": {
+                    "description": "The email associated with our login. Is unique and case-insensitive.",
+                    "type": "string",
+                    "example": "your.email@gmail.com"
+                },
+                "password": {
+                    "description": "Your login password.",
+                    "type": "string",
+                    "example": "tHEBeSTPaSsWOrdYoUCaNCOmeUpWiTH"
+                }
+            }
+        },
+        "swag.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "description": "A JWT that can be used to make authenticated requests for the user.",
+                    "type": "string",
+                    "example": "eyJhbGciOiJI..."
+                }
+            }
+        },
         "swag.PlaidTokenCallbackResponse": {
             "type": "object",
             "properties": {
@@ -1300,6 +1421,65 @@ var doc = `{
                 },
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "swag.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "betaCode": {
+                    "description": "A beta code given to you to test or demo the application. This is primarily used in an environment where it would\ncost money to link a bank account with a user. But testing against real bank accounts is necessary. So to prevent\nanyone just creating accounts and linking their bank account for free, we use beta codes to verify that they are\nsomeone who is supposed to be there. Leave this null or don't include at all if it is not required by the API\nconfiguration.",
+                    "type": "string",
+                    "example": "F2917D98-024633A8"
+                },
+                "captcha": {
+                    "description": "ReCAPTCHA value from validation. Required if ` + "`" + `verifyRegistration` + "`" + ` is enabled on the server.",
+                    "type": "string",
+                    "example": "03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S..."
+                },
+                "email": {
+                    "description": "The email address you want to have associated with your login and user. This is only used for verification\npurposes like resetting a forgotten password. Or for billing. You are **never** added to any mailing list here.",
+                    "type": "string",
+                    "example": "your.email@yahoo.com"
+                },
+                "firstName": {
+                    "description": "Your first name. Currently required for registration but might be able to make it optional in the future for\nmanual only registrations (not plaid linked). And people who are on a free trial.",
+                    "type": "string",
+                    "example": "Doug"
+                },
+                "lastName": {
+                    "description": "Your last name or \"family\" name. Whether or not this is required depends on the plaid configuration, when we are\nlinking bank accounts to users we do need the user's full legal name.",
+                    "type": "string",
+                    "example": "Dimmadome"
+                },
+                "password": {
+                    "description": "Your desired login password.",
+                    "type": "string",
+                    "example": "tHEBeSTPaSsWOrdYoUCaNCOmeUpWiTH"
+                },
+                "timezone": {
+                    "description": "Your timezone in the \"TZ Database Name\" format. This is used for determining when midnight is for funding\nschedules to be processed for your account.",
+                    "type": "string",
+                    "example": "America/Chicago"
+                }
+            }
+        },
+        "swag.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "nextUrl": {
+                    "description": "This is a work in progress field, the end goal being that the API could easily direct the UI to different steps\nbased on the state of a user. If they require MFA then direct them to an MFA screen. If their subscription is\nexpired direct them to a subscription screen. But at the moment it is not used.",
+                    "type": "string",
+                    "example": "/setup"
+                },
+                "token": {
+                    "description": "A JWT that can be used to make authenticated requests for the newly created user.",
+                    "type": "string",
+                    "example": "eyJhbGciOiJI..."
+                },
+                "user": {
+                    "description": "The created user and some basic information. This allows the UI to skip an API call to the /users/me endpoint.",
+                    "$ref": "#/definitions/models.User"
                 }
             }
         },

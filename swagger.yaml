@@ -343,6 +343,28 @@ definitions:
         description: The Git SHA code for the commit of the deployed REST API.
         type: string
     type: object
+  swag.LoginRequest:
+    properties:
+      captcha:
+        description: ReCAPTCHA value from validation. Required if `verifyLogin` is enabled on the server.
+        example: 03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S...
+        type: string
+      email:
+        description: The email associated with our login. Is unique and case-insensitive.
+        example: your.email@gmail.com
+        type: string
+      password:
+        description: Your login password.
+        example: tHEBeSTPaSsWOrdYoUCaNCOmeUpWiTH
+        type: string
+    type: object
+  swag.LoginResponse:
+    properties:
+      token:
+        description: A JWT that can be used to make authenticated requests for the user.
+        example: eyJhbGciOiJI...
+        type: string
+    type: object
   swag.PlaidTokenCallbackResponse:
     properties:
       jobId:
@@ -357,6 +379,67 @@ definitions:
         type: integer
       success:
         type: boolean
+    type: object
+  swag.RegisterRequest:
+    properties:
+      betaCode:
+        description: |-
+          A beta code given to you to test or demo the application. This is primarily used in an environment where it would
+          cost money to link a bank account with a user. But testing against real bank accounts is necessary. So to prevent
+          anyone just creating accounts and linking their bank account for free, we use beta codes to verify that they are
+          someone who is supposed to be there. Leave this null or don't include at all if it is not required by the API
+          configuration.
+        example: F2917D98-024633A8
+        type: string
+      captcha:
+        description: ReCAPTCHA value from validation. Required if `verifyRegistration` is enabled on the server.
+        example: 03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S...
+        type: string
+      email:
+        description: |-
+          The email address you want to have associated with your login and user. This is only used for verification
+          purposes like resetting a forgotten password. Or for billing. You are **never** added to any mailing list here.
+        example: your.email@yahoo.com
+        type: string
+      firstName:
+        description: |-
+          Your first name. Currently required for registration but might be able to make it optional in the future for
+          manual only registrations (not plaid linked). And people who are on a free trial.
+        example: Doug
+        type: string
+      lastName:
+        description: |-
+          Your last name or "family" name. Whether or not this is required depends on the plaid configuration, when we are
+          linking bank accounts to users we do need the user's full legal name.
+        example: Dimmadome
+        type: string
+      password:
+        description: Your desired login password.
+        example: tHEBeSTPaSsWOrdYoUCaNCOmeUpWiTH
+        type: string
+      timezone:
+        description: |-
+          Your timezone in the "TZ Database Name" format. This is used for determining when midnight is for funding
+          schedules to be processed for your account.
+        example: America/Chicago
+        type: string
+    type: object
+  swag.RegisterResponse:
+    properties:
+      nextUrl:
+        description: |-
+          This is a work in progress field, the end goal being that the API could easily direct the UI to different steps
+          based on the state of a user. If they require MFA then direct them to an MFA screen. If their subscription is
+          expired direct them to a subscription screen. But at the moment it is not used.
+        example: /setup
+        type: string
+      token:
+        description: A JWT that can be used to make authenticated requests for the newly created user.
+        example: eyJhbGciOiJI...
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        description: The created user and some basic information. This allows the UI to skip an API call to the /users/me endpoint.
     type: object
   swag.UpdateSpendingRequest:
     properties:
@@ -424,16 +507,72 @@ info:
 paths:
   /authentication/login:
     post:
+      consumes:
+      - application/json
       description: Authenticate a user.
       operationId: login
+      parameters:
+      - description: User Login Request
+        in: body
+        name: Login
+        required: true
+        schema:
+          $ref: '#/definitions/swag.LoginRequest'
       produces:
       - application/json
       responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controller.ApiError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/controller.ApiError'
       summary: Login
+      tags:
+      - Authentication
+  /authentication/register:
+    post:
+      consumes:
+      - application/json
+      description: Register creates a new login, user and account. Logins are used for authentication, users tie authentication to an account, and accounts hold budgeting data.
+      operationId: register
+      parameters:
+      - description: New User Registration
+        in: body
+        name: Registration
+        required: true
+        schema:
+          $ref: '#/definitions/swag.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      summary: Register
       tags:
       - Authentication
   /bank_accounts:
@@ -602,6 +741,8 @@ paths:
       - Funding Schedules
   /bank_accounts/{bankAccountId}/spending:
     get:
+      consumes:
+      - application/json
       description: List all of the spending for the specified bank account.
       operationId: list-spending
       parameters:
@@ -610,6 +751,8 @@ paths:
         name: bankAccountId
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
