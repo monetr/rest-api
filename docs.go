@@ -698,7 +698,7 @@ var doc = `{
                 }
             }
         },
-        "/plaid/setup/wait/{jobId:string}": {
+        "/plaid/setup/wait/{linkId:uint64}": {
             "get": {
                 "security": [
                     {
@@ -714,8 +714,8 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Job ID returned from the token callback endpoint",
-                        "name": "jobId",
+                        "description": "Link ID for the plaid link that is being setup. NOTE: Not Plaid's ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.",
+                        "name": "linkId",
                         "in": "path",
                         "required": true
                     }
@@ -924,6 +924,9 @@ var doc = `{
                     "type": "string"
                 },
                 "linkId": {
+                    "type": "integer"
+                },
+                "linkStatus": {
                     "type": "integer"
                 },
                 "linkType": {
@@ -1213,7 +1216,12 @@ var doc = `{
             "type": "object",
             "properties": {
                 "jobId": {
+                    "description": "If webhooks are not enabled then a job Id is returned with the response. This job Id can also be used to check\nfor initial transactions being retrieved.",
                     "type": "string"
+                },
+                "linkId": {
+                    "description": "LinkId will always be included in a successful response. It can be used when webhooks are enabled to wait for the\ninitial transactions to be retrieved.",
+                    "type": "integer"
                 },
                 "success": {
                     "type": "boolean"

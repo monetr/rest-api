@@ -92,6 +92,8 @@ definitions:
         type: string
       linkId:
         type: integer
+      linkStatus:
+        type: integer
       linkType:
         type: integer
       updatedAt:
@@ -321,7 +323,15 @@ definitions:
   swag.PlaidTokenCallbackResponse:
     properties:
       jobId:
+        description: |-
+          If webhooks are not enabled then a job Id is returned with the response. This job Id can also be used to check
+          for initial transactions being retrieved.
         type: string
+      linkId:
+        description: |-
+          LinkId will always be included in a successful response. It can be used when webhooks are enabled to wait for the
+          initial transactions to be retrieved.
+        type: integer
       success:
         type: boolean
     type: object
@@ -817,14 +827,14 @@ paths:
       summary: Create A Link
       tags:
       - Links
-  /plaid/setup/wait/{jobId:string}:
+  /plaid/setup/wait/{linkId:uint64}:
     get:
       description: Long poll endpoint that will timeout if data has not yet been pulled. Or will return 200 if data is ready.
       operationId: wait-for-plaid-data
       parameters:
-      - description: Job ID returned from the token callback endpoint
+      - description: 'Link ID for the plaid link that is being setup. NOTE: Not Plaid''s ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.'
         in: path
-        name: jobId
+        name: linkId
         required: true
         type: string
       responses:
