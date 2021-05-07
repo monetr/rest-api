@@ -1276,6 +1276,14 @@ var doc = `{
                 "dbHealthy": {
                     "description": "Indicates whether or not the current API process handling the request can communicate with the PostgreSQL\ndatabase.",
                     "type": "boolean"
+                },
+                "release": {
+                    "description": "Release is only present when a deployment was run for a specific tag. This is only found in acceptance and\nproduction.",
+                    "type": "string"
+                },
+                "revision": {
+                    "description": "The Git SHA code for the commit of the deployed REST API.",
+                    "type": "string"
                 }
             }
         },
