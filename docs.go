@@ -259,6 +259,9 @@ var doc = `{
                     }
                 ],
                 "description": "List all of the funding schedule's for the current bank account.",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Funding Schedules"
                 ],
@@ -359,6 +362,9 @@ var doc = `{
                     }
                 ],
                 "description": "Retrieve information about how much spending objects will receive on the next funding schedule.",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Funding Schedules"
                 ],
