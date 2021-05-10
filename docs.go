@@ -621,6 +621,57 @@ var doc = `{
                 }
             }
         },
+        "/bank_accounts/{bankAccountId}/spending/{spendingId}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a spending object. This will set any transactions that have spent from this object back to spent from \"Safe-To-Spend\".",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spending"
+                ],
+                "summary": "Delete Spending",
+                "operationId": "delete-spending",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Account ID",
+                        "name": "bankAccountId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Spending ID to be deleted",
+                        "name": "spendingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Malformed JSON or invalid RRule.",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to persist data.",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/bank_accounts/{bankAccountId}/transactions": {
             "get": {
                 "security": [
@@ -1000,6 +1051,9 @@ var doc = `{
                     "type": "integer",
                     "example": 102400
                 },
+                "lastUpdated": {
+                    "type": "string"
+                },
                 "linkId": {
                     "type": "integer",
                     "example": 2345
@@ -1049,6 +1103,26 @@ var doc = `{
                 }
             }
         },
+        "models.Institution": {
+            "type": "object",
+            "properties": {
+                "institutionId": {
+                    "type": "integer"
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "primaryColor": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Link": {
             "type": "object",
             "properties": {
@@ -1060,6 +1134,12 @@ var doc = `{
                 },
                 "customInstitutionName": {
                     "type": "string"
+                },
+                "institution": {
+                    "$ref": "#/definitions/models.Institution"
+                },
+                "institutionId": {
+                    "type": "integer"
                 },
                 "institutionName": {
                     "type": "string"

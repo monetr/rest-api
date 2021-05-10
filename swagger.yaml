@@ -46,6 +46,8 @@ definitions:
           the form of an integer. To derive a decimal value divide this value by 100.
         example: 102400
         type: integer
+      lastUpdated:
+        type: string
       linkId:
         example: 2345
         type: integer
@@ -80,6 +82,19 @@ definitions:
         example: FREQ=MONTHLY;BYMONTHDAY=15,-1
         type: string
     type: object
+  models.Institution:
+    properties:
+      institutionId:
+        type: integer
+      logo:
+        type: string
+      name:
+        type: string
+      primaryColor:
+        type: string
+      url:
+        type: string
+    type: object
   models.Link:
     properties:
       createdAt:
@@ -88,6 +103,10 @@ definitions:
         type: integer
       customInstitutionName:
         type: string
+      institution:
+        $ref: '#/definitions/models.Institution'
+      institutionId:
+        type: integer
       institutionName:
         type: string
       linkId:
@@ -845,6 +864,39 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Spending
+      tags:
+      - Spending
+  /bank_accounts/{bankAccountId}/spending/{spendingId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a spending object. This will set any transactions that have spent from this object back to spent from "Safe-To-Spend".
+      operationId: delete-spending
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: Spending ID to be deleted
+        in: path
+        name: spendingId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Malformed JSON or invalid RRule.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "500":
+          description: Failed to persist data.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Spending
       tags:
       - Spending
   /bank_accounts/{bankAccountId}/spending/transfer:
