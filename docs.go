@@ -309,10 +309,13 @@ var doc = `{
                 "consumes": [
                     "application/json"
                 ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Funding Schedules"
                 ],
-                "summary": "Create a funding schedule for the specified bank account.",
+                "summary": "Create Funding Schedule",
                 "operationId": "create-funding-schedule",
                 "parameters": [
                     {
@@ -463,6 +466,9 @@ var doc = `{
                 "consumes": [
                     "application/json"
                 ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Spending"
                 ],
@@ -515,6 +521,9 @@ var doc = `{
                 ],
                 "description": "Create an spending for the specified bank account.",
                 "consumes": [
+                    "application/json"
+                ],
+                "produces": [
                     "application/json"
                 ],
                 "tags": [
@@ -571,6 +580,9 @@ var doc = `{
                 ],
                 "description": "Transfer allocated funds to or from a spending object.",
                 "consumes": [
+                    "application/json"
+                ],
+                "produces": [
                     "application/json"
                 ],
                 "tags": [
@@ -630,6 +642,9 @@ var doc = `{
                 ],
                 "description": "Delete a spending object. This will set any transactions that have spent from this object back to spent from \"Safe-To-Spend\".",
                 "consumes": [
+                    "application/json"
+                ],
+                "produces": [
                     "application/json"
                 ],
                 "tags": [
@@ -970,9 +985,20 @@ var doc = `{
                 ],
                 "summary": "New Plaid Token",
                 "operationId": "new-plaid-token",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "If true, the API will check and see if a plaid link token already exists for the current user. If one is present then it is returned instead of creating a new link token.",
+                        "name": "use_cache",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.PlaidNewLinkTokenResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1491,6 +1517,16 @@ var doc = `{
                     "description": "A JWT that can be used to make authenticated requests for the user.",
                     "type": "string",
                     "example": "eyJhbGciOiJI..."
+                }
+            }
+        },
+        "swag.PlaidNewLinkTokenResponse": {
+            "type": "object",
+            "properties": {
+                "linkToken": {
+                    "description": "The link token that will be used for the end user to authenticate to their bank using plaid. These tokens do\nexpire. They are also specific to a single environment. See: https://plaid.com/docs/api/tokens/#linktokencreate",
+                    "type": "string",
+                    "example": "link-environment-6da2c37f-6aa0...."
                 }
             }
         },

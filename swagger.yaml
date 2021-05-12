@@ -384,6 +384,15 @@ definitions:
         example: eyJhbGciOiJI...
         type: string
     type: object
+  swag.PlaidNewLinkTokenResponse:
+    properties:
+      linkToken:
+        description: |-
+          The link token that will be used for the end user to authenticate to their bank using plaid. These tokens do
+          expire. They are also specific to a single environment. See: https://plaid.com/docs/api/tokens/#linktokencreate
+        example: link-environment-6da2c37f-6aa0....
+        type: string
+    type: object
   swag.PlaidTokenCallbackResponse:
     properties:
       jobId:
@@ -714,6 +723,8 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.FundingSchedule'
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -729,7 +740,7 @@ paths:
             $ref: '#/definitions/controller.ApiError'
       security:
       - ApiKeyAuth: []
-      summary: Create a funding schedule for the specified bank account.
+      summary: Create Funding Schedule
       tags:
       - Funding Schedules
   /bank_accounts/{bankAccountId}/funding_schedules/stats:
@@ -813,6 +824,8 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Spending'
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -848,6 +861,8 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/swag.UpdateSpendingRequest'
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -883,6 +898,8 @@ paths:
         name: spendingId
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
           description: ""
@@ -917,6 +934,8 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/controller.SpendingTransfer'
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -1121,11 +1140,18 @@ paths:
     get:
       description: Generates a link token from Plaid to be used to authenticate a user's bank account with our application.
       operationId: new-plaid-token
+      parameters:
+      - description: If true, the API will check and see if a plaid link token already exists for the current user. If one is present then it is returned instead of creating a new link token.
+        in: query
+        name: use_cache
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.PlaidNewLinkTokenResponse'
         "500":
           description: Internal Server Error
           schema:
