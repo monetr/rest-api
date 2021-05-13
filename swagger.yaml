@@ -363,6 +363,7 @@ definitions:
           The public ReCAPTCHA key that should be used by the frontend to verify some requests. Is omitted if ReCAPTCHA is
           not enabled.
         type: string
+        x-nullable: true
       allowForgotPassword:
         description: |-
           **WIP** Not currently used. Will be implemented once proper email verification is working. Will also require that
@@ -389,6 +390,7 @@ definitions:
       stripePublicKey:
         description: The public key for Stripe, will be used for stripe elements on the frontend. Is omitted if stripe is not enabled.
         type: string
+        x-nullable: true
       verifyLogin:
         description: Tells the API client that a ReCAPTCHA verification key will be required for login API calls.
         type: boolean
@@ -432,6 +434,7 @@ definitions:
           Release is only present when a deployment was run for a specific tag. This is only found in acceptance and
           production.
         type: string
+        x-nullable: true
       revision:
         description: The Git SHA code for the commit of the deployed REST API.
         type: string
@@ -442,6 +445,7 @@ definitions:
         description: ReCAPTCHA value from validation. Required if `verifyLogin` is enabled on the server.
         example: 03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S...
         type: string
+        x-nullable: true
       email:
         description: The email associated with our login. Is unique and case-insensitive.
         example: your.email@gmail.com
@@ -507,6 +511,7 @@ definitions:
           Changing this rule would recalculate contributions to this spending object.
         example: FREQ=MONTHLY;BYMONTHDAY=1
         type: string
+        x-nullable: true
       spendingType:
         description: |-
           The type of spending object this is. This cannot be changed. It can only be set when the spending object is created.
@@ -526,7 +531,14 @@ definitions:
           expense if the transaction was spent before it is technically due AND the funding schedule occurs before the
           specified next recurrence date. Changing this amount will recalculate contributions to this spending object.
         example: 1395
+        minimum: 0.01
         type: integer
+    required:
+    - bankAccountId
+    - fundingScheduleId
+    - name
+    - spendingType
+    - targetAmount
     type: object
   swag.PlaidNewLinkTokenResponse:
     properties:
@@ -544,6 +556,7 @@ definitions:
           If webhooks are not enabled then a job Id is returned with the response. This job Id can also be used to check
           for initial transactions being retrieved.
         type: string
+        x-nullable: true
       linkId:
         description: |-
           LinkId will always be included in a successful response. It can be used when webhooks are enabled to wait for the
@@ -563,10 +576,12 @@ definitions:
           configuration.
         example: F2917D98-024633A8
         type: string
+        x-nullable: true
       captcha:
         description: ReCAPTCHA value from validation. Required if `verifyRegistration` is enabled on the server.
         example: 03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S...
         type: string
+        x-nullable: true
       email:
         description: |-
           The email address you want to have associated with your login and user. This is only used for verification
@@ -585,6 +600,7 @@ definitions:
           linking bank accounts to users we do need the user's full legal name.
         example: Dimmadome
         type: string
+        x-nullable: true
       password:
         description: Your desired login password.
         example: tHEBeSTPaSsWOrdYoUCaNCOmeUpWiTH
@@ -665,6 +681,7 @@ definitions:
           before. Or if the spending object is a goal. This field is maintained automatically and cannot be modified.
         example: "2021-04-15T00:00:00-05:00"
         type: string
+        x-nullable: true
       name:
         description: Human friendly name of the spending object. Something like "Amazon Prime". But can be anything.
         example: Amazon Prime
@@ -688,6 +705,11 @@ definitions:
           Changing this rule would recalculate contributions to this spending object.
         example: FREQ=MONTHLY;BYMONTHDAY=1
         type: string
+        x-nullable: true
+      spendingId:
+        description: The spending Id of the goal or expense that you are updating.
+        example: 4364
+        type: integer
       spendingType:
         description: |-
           The type of spending object this is. This cannot be changed. It can only be set when the spending object is created.
@@ -707,6 +729,7 @@ definitions:
           expense if the transaction was spent before it is technically due AND the funding schedule occurs before the
           specified next recurrence date. Changing this amount will recalculate contributions to this spending object.
         example: 1395
+        minimum: 0.01
         type: integer
       usedAmount:
         description: |-
@@ -715,6 +738,16 @@ definitions:
           `currentAmount` field. A goal is complete when the `currentAmount` + `usedAmount` = `targetAmount`.
         example: 1043
         type: integer
+    required:
+    - bankAccountId
+    - fundingScheduleId
+    - fundingScheduleId
+    - name
+    - name
+    - spendingId
+    - spendingType
+    - targetAmount
+    - targetAmount
     type: object
   swag.TransferResponse:
     properties:
@@ -772,6 +805,7 @@ definitions:
           Changing this rule would recalculate contributions to this spending object.
         example: FREQ=MONTHLY;BYMONTHDAY=1
         type: string
+        x-nullable: true
       spendingId:
         description: The spending Id of the goal or expense that you are updating.
         example: 4364
@@ -785,7 +819,13 @@ definitions:
           expense if the transaction was spent before it is technically due AND the funding schedule occurs before the
           specified next recurrence date. Changing this amount will recalculate contributions to this spending object.
         example: 1395
+        minimum: 0.01
         type: integer
+    required:
+    - fundingScheduleId
+    - name
+    - spendingId
+    - targetAmount
     type: object
 host: api.monetr.app
 info:

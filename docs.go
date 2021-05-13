@@ -1494,7 +1494,8 @@ var doc = `{
             "properties": {
                 "ReCAPTCHAKey": {
                     "description": "The public ReCAPTCHA key that should be used by the frontend to verify some requests. Is omitted if ReCAPTCHA is\nnot enabled.",
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "allowForgotPassword": {
                     "description": "**WIP** Not currently used. Will be implemented once proper email verification is working. Will also require that\nthe API can send emails to the end user.",
@@ -1518,7 +1519,8 @@ var doc = `{
                 },
                 "stripePublicKey": {
                     "description": "The public key for Stripe, will be used for stripe elements on the frontend. Is omitted if stripe is not enabled.",
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "verifyLogin": {
                     "description": "Tells the API client that a ReCAPTCHA verification key will be required for login API calls.",
@@ -1565,7 +1567,8 @@ var doc = `{
                 },
                 "release": {
                     "description": "Release is only present when a deployment was run for a specific tag. This is only found in acceptance and\nproduction.",
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "revision": {
                     "description": "The Git SHA code for the commit of the deployed REST API.",
@@ -1579,6 +1582,7 @@ var doc = `{
                 "captcha": {
                     "description": "ReCAPTCHA value from validation. Required if ` + "`" + `verifyLogin` + "`" + ` is enabled on the server.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S..."
                 },
                 "email": {
@@ -1605,6 +1609,13 @@ var doc = `{
         },
         "swag.NewSpendingRequest": {
             "type": "object",
+            "required": [
+                "bankAccountId",
+                "fundingScheduleId",
+                "name",
+                "spendingType",
+                "targetAmount"
+            ],
             "properties": {
                 "bankAccountId": {
                     "description": "Indicates which bank account the spending object is associated with. All spending objects must be associated with\none bank account. This value cannot be changed. It can only be set when the spending object is created.",
@@ -1638,6 +1649,7 @@ var doc = `{
                 "recurrenceRule": {
                     "description": "Recurrence rule telling the budgeting system how often this expense should be used. This helps the budgeting\nsystem recalculate the next recurrence date each time an expense's recurrence date is reached. More information\nabout the format of the rule can be found here: https://tools.ietf.org/html/rfc5545\nNote: These rules should be provided with the ` + "`" + `RRULE:` + "`" + ` prefix omitted if the tool you are using to generate the\nrule strings include it. These rules are parsed using this library: https://github.com/teambition/rrule-go\nChanging this rule would recalculate contributions to this spending object.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "FREQ=MONTHLY;BYMONTHDAY=1"
                 },
                 "spendingType": {
@@ -1652,6 +1664,7 @@ var doc = `{
                 "targetAmount": {
                     "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
                     "type": "integer",
+                    "minimum": 0.01,
                     "example": 1395
                 }
             }
@@ -1671,7 +1684,8 @@ var doc = `{
             "properties": {
                 "jobId": {
                     "description": "If webhooks are not enabled then a job Id is returned with the response. This job Id can also be used to check\nfor initial transactions being retrieved.",
-                    "type": "string"
+                    "type": "string",
+                    "x-nullable": true
                 },
                 "linkId": {
                     "description": "LinkId will always be included in a successful response. It can be used when webhooks are enabled to wait for the\ninitial transactions to be retrieved.",
@@ -1688,11 +1702,13 @@ var doc = `{
                 "betaCode": {
                     "description": "A beta code given to you to test or demo the application. This is primarily used in an environment where it would\ncost money to link a bank account with a user. But testing against real bank accounts is necessary. So to prevent\nanyone just creating accounts and linking their bank account for free, we use beta codes to verify that they are\nsomeone who is supposed to be there. Leave this null or don't include at all if it is not required by the API\nconfiguration.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "F2917D98-024633A8"
                 },
                 "captcha": {
                     "description": "ReCAPTCHA value from validation. Required if ` + "`" + `verifyRegistration` + "`" + ` is enabled on the server.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S..."
                 },
                 "email": {
@@ -1708,6 +1724,7 @@ var doc = `{
                 "lastName": {
                     "description": "Your last name or \"family\" name. Whether or not this is required depends on the plaid configuration, when we are\nlinking bank accounts to users we do need the user's full legal name.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "Dimmadome"
                 },
                 "password": {
@@ -1743,6 +1760,17 @@ var doc = `{
         },
         "swag.SpendingResponse": {
             "type": "object",
+            "required": [
+                "bankAccountId",
+                "fundingScheduleId",
+                "fundingScheduleId",
+                "name",
+                "name",
+                "spendingId",
+                "spendingType",
+                "targetAmount",
+                "targetAmount"
+            ],
             "properties": {
                 "bankAccountId": {
                     "description": "Indicates which bank account the spending object is associated with. All spending objects must be associated with\none bank account. This value cannot be changed. It can only be set when the spending object is created.",
@@ -1781,6 +1809,7 @@ var doc = `{
                 "lastRecurrence": {
                     "description": "The last time this spending object reset. A spending object is reset each time its ` + "`" + `nextRecurrence` + "`" + ` date elapses,\nthe ` + "`" + `nextRecurrence` + "`" + ` date is then moved to this field. This field is null if a spending object has never elapsed\nbefore. Or if the spending object is a goal. This field is maintained automatically and cannot be modified.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "2021-04-15T00:00:00-05:00"
                 },
                 "name": {
@@ -1796,7 +1825,13 @@ var doc = `{
                 "recurrenceRule": {
                     "description": "Recurrence rule telling the budgeting system how often this expense should be used. This helps the budgeting\nsystem recalculate the next recurrence date each time an expense's recurrence date is reached. More information\nabout the format of the rule can be found here: https://tools.ietf.org/html/rfc5545\nNote: These rules should be provided with the ` + "`" + `RRULE:` + "`" + ` prefix omitted if the tool you are using to generate the\nrule strings include it. These rules are parsed using this library: https://github.com/teambition/rrule-go\nChanging this rule would recalculate contributions to this spending object.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "FREQ=MONTHLY;BYMONTHDAY=1"
+                },
+                "spendingId": {
+                    "description": "The spending Id of the goal or expense that you are updating.",
+                    "type": "integer",
+                    "example": 4364
                 },
                 "spendingType": {
                     "description": "The type of spending object this is. This cannot be changed. It can only be set when the spending object is created.\n* 0 - Expense, the object will occur on a regular basis based on its recurrence rule. Spending from an expense will always change its next allocation amount.\n* 1 - Goal, the object will allocate until it reaches it's target value and then stop. It can be spent from while it is still incomplete without changing the allocation amount.",
@@ -1810,6 +1845,7 @@ var doc = `{
                 "targetAmount": {
                     "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
                     "type": "integer",
+                    "minimum": 0.01,
                     "example": 1395
                 },
                 "usedAmount": {
@@ -1837,6 +1873,12 @@ var doc = `{
         },
         "swag.UpdateSpendingRequest": {
             "type": "object",
+            "required": [
+                "fundingScheduleId",
+                "name",
+                "spendingId",
+                "targetAmount"
+            ],
             "properties": {
                 "description": {
                     "description": "Currently used as a description of the recurrence rule so that it does not need to be \"generated\" with each\npattern. This is not intended to be used by the end user and is generated by the UI when the spending object is\ncreated or updated. However it can be modified if you were to send this request manually. It has no side affects,\nit is simply used to better display data to the end user at this time.",
@@ -1865,6 +1907,7 @@ var doc = `{
                 "recurrenceRule": {
                     "description": "Recurrence rule telling the budgeting system how often this expense should be used. This helps the budgeting\nsystem recalculate the next recurrence date each time an expense's recurrence date is reached. More information\nabout the format of the rule can be found here: https://tools.ietf.org/html/rfc5545\nNote: These rules should be provided with the ` + "`" + `RRULE:` + "`" + ` prefix omitted if the tool you are using to generate the\nrule strings include it. These rules are parsed using this library: https://github.com/teambition/rrule-go\nChanging this rule would recalculate contributions to this spending object.",
                     "type": "string",
+                    "x-nullable": true,
                     "example": "FREQ=MONTHLY;BYMONTHDAY=1"
                 },
                 "spendingId": {
@@ -1875,6 +1918,7 @@ var doc = `{
                 "targetAmount": {
                     "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
                     "type": "integer",
+                    "minimum": 0.01,
                     "example": 1395
                 }
             }
