@@ -438,7 +438,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Spending"
+                                "$ref": "#/definitions/swag.SpendingResponse"
                             }
                         }
                     },
@@ -496,7 +496,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Spending"
+                            "$ref": "#/definitions/swag.SpendingResponse"
                         }
                     },
                     "400": {
@@ -545,7 +545,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Spending"
+                            "$ref": "#/definitions/swag.NewSpendingRequest"
                         }
                     }
                 ],
@@ -553,7 +553,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Spending"
+                            "$ref": "#/definitions/swag.SpendingResponse"
                         }
                     },
                     "400": {
@@ -614,7 +614,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Spending"
+                                "$ref": "#/definitions/swag.TransferResponse"
                             }
                         }
                     },
@@ -640,7 +640,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Delete a spending object. This will set any transactions that have spent from this object back to spent from \"Safe-To-Spend\".",
+                "description": "Delete a spending object. This will set any transactions that have spent from this object back to spent from \"Safe-To-Spend\". If the spending object is successfully deleted, this endpoint simply returns 200 with an empty body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1404,6 +1404,41 @@ var doc = `{
                 }
             }
         },
+        "swag.BalanceResponse": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "The available balance of the account, usually the current balance minus any pending transactions.",
+                    "type": "integer",
+                    "example": 124000
+                },
+                "bankAccountId": {
+                    "description": "The bank account the balances are for. Balances are only per bank account, and not currently calculated at a link\nor global level.",
+                    "type": "integer",
+                    "example": 1234
+                },
+                "current": {
+                    "description": "The current balance of the account in cents. This typically excludes pending transaction values.",
+                    "type": "integer",
+                    "example": 124396
+                },
+                "expenses": {
+                    "description": "The amount allocated to expense spending objects.",
+                    "type": "integer",
+                    "example": 100000
+                },
+                "goals": {
+                    "description": "The amount allocated to goal spending objects.",
+                    "type": "integer",
+                    "example": 11650
+                },
+                "safe": {
+                    "description": "The amount left over in the bank account after all expense and goal allocations have been subtracted from the\navailable balance.",
+                    "type": "integer",
+                    "example": 12350
+                }
+            }
+        },
         "swag.BankAccountCreateRequest": {
             "type": "object",
             "properties": {
@@ -1568,6 +1603,59 @@ var doc = `{
                 }
             }
         },
+        "swag.NewSpendingRequest": {
+            "type": "object",
+            "properties": {
+                "bankAccountId": {
+                    "description": "Indicates which bank account the spending object is associated with. All spending objects must be associated with\none bank account. This value cannot be changed. It can only be set when the spending object is created.",
+                    "type": "integer",
+                    "example": 8437
+                },
+                "description": {
+                    "description": "Currently used as a description of the recurrence rule so that it does not need to be \"generated\" with each\npattern. This is not intended to be used by the end user and is generated by the UI when the spending object is\ncreated or updated. However it can be modified if you were to send this request manually. It has no side affects,\nit is simply used to better display data to the end user at this time.",
+                    "type": "string",
+                    "example": "1st of every month"
+                },
+                "fundingScheduleId": {
+                    "description": "The desired funding schedule of the spending. Changing this will trigger a recalculation of the spending object.",
+                    "type": "integer",
+                    "example": 8539
+                },
+                "isPaused": {
+                    "description": "Indicate whether or not this spending object should receive contributions on it's funding schedule occurrence. If\nthe spending object is paused, the next time its funding schedule occurs, no additional amount will be allocated\nto this spending object.",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "Human friendly name of the spending object. Something like \"Amazon Prime\". But can be anything.",
+                    "type": "string",
+                    "example": "Amazon Prime"
+                },
+                "nextRecurrence": {
+                    "description": "The next time this expense or goal is due. For expenses this date is recalculated each time this date passes.\nFor goals this date is somewhat static. It can be modified but is not automatically recalculated once it is\nreached. Changing this date would recalculate contributions to this spending object. These dates should be\nprovided in RFC3339 format with the timezone of the client included. The timezone is important as its used to\ncalculate the next time this expense recurs.",
+                    "type": "string",
+                    "example": "2021-05-01T00:00:00-05:00"
+                },
+                "recurrenceRule": {
+                    "description": "Recurrence rule telling the budgeting system how often this expense should be used. This helps the budgeting\nsystem recalculate the next recurrence date each time an expense's recurrence date is reached. More information\nabout the format of the rule can be found here: https://tools.ietf.org/html/rfc5545\nNote: These rules should be provided with the ` + "`" + `RRULE:` + "`" + ` prefix omitted if the tool you are using to generate the\nrule strings include it. These rules are parsed using this library: https://github.com/teambition/rrule-go\nChanging this rule would recalculate contributions to this spending object.",
+                    "type": "string",
+                    "example": "FREQ=MONTHLY;BYMONTHDAY=1"
+                },
+                "spendingType": {
+                    "description": "The type of spending object this is. This cannot be changed. It can only be set when the spending object is created.\n* 0 - Expense, the object will occur on a regular basis based on its recurrence rule. Spending from an expense will always change its next allocation amount.\n* 1 - Goal, the object will allocate until it reaches it's target value and then stop. It can be spent from while it is still incomplete without changing the allocation amount.",
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1
+                    ],
+                    "example": 0
+                },
+                "targetAmount": {
+                    "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
+                    "type": "integer",
+                    "example": 1395
+                }
+            }
+        },
         "swag.PlaidNewLinkTokenResponse": {
             "type": "object",
             "properties": {
@@ -1653,6 +1741,100 @@ var doc = `{
                 }
             }
         },
+        "swag.SpendingResponse": {
+            "type": "object",
+            "properties": {
+                "bankAccountId": {
+                    "description": "Indicates which bank account the spending object is associated with. All spending objects must be associated with\none bank account. This value cannot be changed. It can only be set when the spending object is created.",
+                    "type": "integer",
+                    "example": 8437
+                },
+                "currentAmount": {
+                    "description": "The amount that has been allocated to the spending object. This amount is deducted from the available balance of\nthe bank account the spending object is associated with. It can be modified by spending a transaction from a\nspending object. Or by transferring/allocating funds to a spending object. It cannot be modified directly.",
+                    "type": "integer",
+                    "example": 1395
+                },
+                "dateCreated": {
+                    "description": "When the spending object was initially created. This value cannot be changed.",
+                    "type": "string",
+                    "example": "2021-04-04T12:43:23-05:00"
+                },
+                "description": {
+                    "description": "Currently used as a description of the recurrence rule so that it does not need to be \"generated\" with each\npattern. This is not intended to be used by the end user and is generated by the UI when the spending object is\ncreated or updated. However it can be modified if you were to send this request manually. It has no side affects,\nit is simply used to better display data to the end user at this time.",
+                    "type": "string",
+                    "example": "1st of every month"
+                },
+                "fundingScheduleId": {
+                    "description": "The desired funding schedule of the spending. Changing this will trigger a recalculation of the spending object.",
+                    "type": "integer",
+                    "example": 8539
+                },
+                "isBehind": {
+                    "description": "If a spending object cannot reach its ` + "`" + `targetAmount` + "`" + ` by the date that it is due on its funding schedule alone,\nthen the spending object is marked as \"behind\". This means that without manually transferring funds to the\nspending object it will not have enough funds to fulfill its target by the due date. This value is calculated\nautomatically and cannot be changed.",
+                    "type": "boolean",
+                    "example": false
+                },
+                "isPaused": {
+                    "description": "Indicate whether or not this spending object should receive contributions on it's funding schedule occurrence. If\nthe spending object is paused, the next time its funding schedule occurs, no additional amount will be allocated\nto this spending object.",
+                    "type": "boolean"
+                },
+                "lastRecurrence": {
+                    "description": "The last time this spending object reset. A spending object is reset each time its ` + "`" + `nextRecurrence` + "`" + ` date elapses,\nthe ` + "`" + `nextRecurrence` + "`" + ` date is then moved to this field. This field is null if a spending object has never elapsed\nbefore. Or if the spending object is a goal. This field is maintained automatically and cannot be modified.",
+                    "type": "string",
+                    "example": "2021-04-15T00:00:00-05:00"
+                },
+                "name": {
+                    "description": "Human friendly name of the spending object. Something like \"Amazon Prime\". But can be anything.",
+                    "type": "string",
+                    "example": "Amazon Prime"
+                },
+                "nextRecurrence": {
+                    "description": "The next time this expense or goal is due. For expenses this date is recalculated each time this date passes.\nFor goals this date is somewhat static. It can be modified but is not automatically recalculated once it is\nreached. Changing this date would recalculate contributions to this spending object. These dates should be\nprovided in RFC3339 format with the timezone of the client included. The timezone is important as its used to\ncalculate the next time this expense recurs.",
+                    "type": "string",
+                    "example": "2021-05-01T00:00:00-05:00"
+                },
+                "recurrenceRule": {
+                    "description": "Recurrence rule telling the budgeting system how often this expense should be used. This helps the budgeting\nsystem recalculate the next recurrence date each time an expense's recurrence date is reached. More information\nabout the format of the rule can be found here: https://tools.ietf.org/html/rfc5545\nNote: These rules should be provided with the ` + "`" + `RRULE:` + "`" + ` prefix omitted if the tool you are using to generate the\nrule strings include it. These rules are parsed using this library: https://github.com/teambition/rrule-go\nChanging this rule would recalculate contributions to this spending object.",
+                    "type": "string",
+                    "example": "FREQ=MONTHLY;BYMONTHDAY=1"
+                },
+                "spendingType": {
+                    "description": "The type of spending object this is. This cannot be changed. It can only be set when the spending object is created.\n* 0 - Expense, the object will occur on a regular basis based on its recurrence rule. Spending from an expense will always change its next allocation amount.\n* 1 - Goal, the object will allocate until it reaches it's target value and then stop. It can be spent from while it is still incomplete without changing the allocation amount.",
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1
+                    ],
+                    "example": 0
+                },
+                "targetAmount": {
+                    "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
+                    "type": "integer",
+                    "example": 1395
+                },
+                "usedAmount": {
+                    "description": "Used amount is only valid for goals at this time. It indicates how much has been spent from the spending object,\nand is used to keep track of the goal's progress to its target without affecting the accuracy of the\n` + "`" + `currentAmount` + "`" + ` field. A goal is complete when the ` + "`" + `currentAmount` + "`" + ` + ` + "`" + `usedAmount` + "`" + ` = ` + "`" + `targetAmount` + "`" + `.",
+                    "type": "integer",
+                    "example": 1043
+                }
+            }
+        },
+        "swag.TransferResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "The balance of the bank account after the transferred allocations have been recalculated.",
+                    "$ref": "#/definitions/swag.BalanceResponse"
+                },
+                "spending": {
+                    "description": "An array of spending objects that were updated during the transfer. By persisting these to the client's memory\nthe state of the spending objects is properly maintained.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swag.SpendingResponse"
+                    }
+                }
+            }
+        },
         "swag.UpdateSpendingRequest": {
             "type": "object",
             "properties": {
@@ -1665,6 +1847,10 @@ var doc = `{
                     "description": "The desired funding schedule of the spending. Changing this will trigger a recalculation of the spending object.",
                     "type": "integer",
                     "example": 8539
+                },
+                "isPaused": {
+                    "description": "Indicate whether or not this spending object should receive contributions on it's funding schedule occurrence. If\nthe spending object is paused, the next time its funding schedule occurs, no additional amount will be allocated\nto this spending object.",
+                    "type": "boolean"
                 },
                 "name": {
                     "description": "Human friendly name of the spending object. Something like \"Amazon Prime\". But can be anything.",
