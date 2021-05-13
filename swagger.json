@@ -798,7 +798,10 @@
                 "operationId": "app-config",
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.ConfigResponse"
+                        }
                     }
                 }
             }
@@ -1435,6 +1438,47 @@
                 }
             }
         },
+        "swag.ConfigResponse": {
+            "type": "object",
+            "properties": {
+                "ReCAPTCHAKey": {
+                    "description": "The public ReCAPTCHA key that should be used by the frontend to verify some requests. Is omitted if ReCAPTCHA is\nnot enabled.",
+                    "type": "string"
+                },
+                "allowForgotPassword": {
+                    "description": "**WIP** Not currently used. Will be implemented once proper email verification is working. Will also require that\nthe API can send emails to the end user.",
+                    "type": "boolean"
+                },
+                "allowSignUp": {
+                    "description": "Tells the UI whether or not registration requests will be accepted by the UI.",
+                    "type": "boolean"
+                },
+                "requireBetaCode": {
+                    "description": "Indicates that registration requests will require a one time use beta code in order to be accepted. Beta codes\nmust be generated before hand by an admin.",
+                    "type": "boolean"
+                },
+                "requireLegalName": {
+                    "description": "Indicates whether or not the UI should collect just a simple \"firstName\" or should require that the user provide\nboth their first and last name during registration.",
+                    "type": "boolean"
+                },
+                "requirePhoneNumber": {
+                    "description": "**WIP** Not currently used. This is meant to be used for doing additional verification of the user's identity to\nstreamline the bank account linking process.",
+                    "type": "boolean"
+                },
+                "stripePublicKey": {
+                    "description": "The public key for Stripe, will be used for stripe elements on the frontend. Is omitted if stripe is not enabled.",
+                    "type": "string"
+                },
+                "verifyLogin": {
+                    "description": "Tells the API client that a ReCAPTCHA verification key will be required for login API calls.",
+                    "type": "boolean"
+                },
+                "verifyRegister": {
+                    "description": "Tells the API client that a ReCAPTCHA verification key will be required for registering a new user.",
+                    "type": "boolean"
+                }
+            }
+        },
         "swag.CreateCheckoutSessionRequest": {
             "type": "object",
             "properties": {
@@ -1459,6 +1503,10 @@
                 "apiHealthy": {
                     "description": "This will always be true. If the API is not healthy then an error is returned to the client or the request will\nsimply not be served.",
                     "type": "boolean"
+                },
+                "buildTime": {
+                    "description": "The time the current REST API executable was built. Typically when the container build was initiated.",
+                    "type": "string"
                 },
                 "dbHealthy": {
                     "description": "Indicates whether or not the current API process handling the request can communicate with the PostgreSQL\ndatabase.",
