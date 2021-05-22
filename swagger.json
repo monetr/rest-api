@@ -849,7 +849,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Link"
+                                "$ref": "#/definitions/swag.LinkResponse"
                             }
                         }
                     },
@@ -868,6 +868,9 @@
                     }
                 ],
                 "description": "Create a manual link.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -876,15 +879,32 @@
                 ],
                 "summary": "Create A Link",
                 "operationId": "create-link",
+                "parameters": [
+                    {
+                        "description": "New Manual Link",
+                        "name": "newLink",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.CreateLinkRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Newly created manual link",
                         "schema": {
-                            "$ref": "#/definitions/models.Link"
+                            "$ref": "#/definitions/swag.LinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed JSON.",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Something went wrong on our end.",
                         "schema": {
                             "$ref": "#/definitions/controller.ApiError"
                         }
@@ -1113,67 +1133,6 @@
                 "rule": {
                     "type": "string",
                     "example": "FREQ=MONTHLY;BYMONTHDAY=15,-1"
-                }
-            }
-        },
-        "models.Institution": {
-            "type": "object",
-            "properties": {
-                "institutionId": {
-                    "type": "integer"
-                },
-                "logo": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "primaryColor": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Link": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdByUserId": {
-                    "type": "integer"
-                },
-                "customInstitutionName": {
-                    "type": "string"
-                },
-                "institution": {
-                    "$ref": "#/definitions/models.Institution"
-                },
-                "institutionId": {
-                    "type": "integer"
-                },
-                "institutionName": {
-                    "type": "string"
-                },
-                "linkId": {
-                    "type": "integer"
-                },
-                "linkStatus": {
-                    "type": "integer"
-                },
-                "linkType": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedByUser": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "updatedByUserId": {
-                    "type": "integer"
                 }
             }
         },
@@ -1534,6 +1493,19 @@
                 }
             }
         },
+        "swag.CreateLinkRequest": {
+            "type": "object",
+            "required": [
+                "institutionName"
+            ],
+            "properties": {
+                "institutionName": {
+                    "description": "Specify the institution name for the manual link. When created by the UI this will default to `Manual` and then\nany bank account's created that are manual will automatically be created for this link. Technically a link can\nbe created with any name at the moment, but this is meant to be a basic initial implementation for now.",
+                    "type": "string",
+                    "example": "Manual"
+                }
+            }
+        },
         "swag.HealthResponse": {
             "type": "object",
             "properties": {
@@ -1557,6 +1529,72 @@
                 "revision": {
                     "description": "The Git SHA code for the commit of the deployed REST API.",
                     "type": "string"
+                }
+            }
+        },
+        "swag.LinkResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "The timestamp the link was created in UTC. This cannot be modified by the end user.",
+                    "type": "string",
+                    "example": "2021-05-18T00:26:10.873089Z"
+                },
+                "createdByUserId": {
+                    "description": "The unique user Id of the user who created this link. If that user is deleted then any links that that user\ncreated are also deleted. In an \"ownership\" sort of way. If a user links their bank account and has that shared\nwith someone else; but then the user deletes their user. We do not want the other user to still have access to\nthe linked bank account.",
+                    "type": "integer",
+                    "example": 94832
+                },
+                "customInstitutionName": {
+                    "description": "A custom name for the link's institution that can be set by the end user. Once a link is created the institution\nname cannot be changed directly. But the custom institution name can.",
+                    "type": "string",
+                    "example": "US Bank"
+                },
+                "institutionId": {
+                    "description": "Our internal Id for an institution. This is just an abstraction layer on top of Plaid's institution Id but would\nallow us to associate institutions with multiple integrations in the future. It is also meant to keep Plaid Id's\naway from the client's view as much as possible.",
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 5328
+                },
+                "institutionName": {
+                    "description": "The institution name for this link. With the Plaid integration, each link represents a single bank account login\nwith an institution. So if you link your monetr account with your U.S. Bank account you would have one link for\nU.S. Bank, and your accounts with that bank would show as bank account's under that link. Manual links are\nintended to be a single \"Manual\" link per account, with any manually managed bank accounts underneath it.",
+                    "type": "string",
+                    "example": "U.S. Bank"
+                },
+                "linkId": {
+                    "description": "Our unique identifier for a link. This is globally unique across all accounts.",
+                    "type": "integer",
+                    "example": 1245
+                },
+                "linkStatus": {
+                    "description": "Status of a link, this is used with the Plaid integration to determine whether or not a link has been completely\nsetup. If a link is in an Unknown or Pending state then the link has not had it's transactions retrieved yet from\nPlaid. Unknown might indicate there is a problem with the link itself.\n* 0 - `Unknown`: Indicates the link is not setup or ready to use, might also indicate there is a problem with the link.\n* 1 - `Pending`: The link is not ready to use and is being setup by the Plaid integration.\n* 2 - `Setup`: The link is ready to use. This is the default state for manual links.",
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        2
+                    ],
+                    "example": 2
+                },
+                "linkType": {
+                    "description": "The type of link this object is. This indicates whether or not bank accounts within this link are managed\nmanually by an end user, or managed automatically by a Plaid integration.\n* 0 - `Unknown`: This would indicate an error state with the link.\n* 1 - `Plaid`: This link is automatically managed by the Plaid integration.\n* 2 - `Manual`: This link is managed manually by the end user.",
+                    "type": "integer",
+                    "enum": [
+                        1,
+                        2
+                    ],
+                    "example": 2
+                },
+                "updatedAt": {
+                    "description": "The last time this link was updated. Currently this field is not really maintained, eventually this timestamp\nwill indicate the last time a sync occurred between monetr and Plaid. Manual links don't change this field at\nall.",
+                    "type": "string",
+                    "example": "2021-05-21T05:24:12.958309Z"
+                },
+                "updatedByUserId": {
+                    "description": "The user who last updated this link. Currently this field is not maintained well and should not be trusted.",
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 89547
                 }
             }
         },
