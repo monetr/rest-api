@@ -10,13 +10,13 @@ func (r *repositoryBase) CreateBankAccounts(bankAccounts ...models.BankAccount) 
 		bankAccounts[i].BankAccountId = 0
 		bankAccounts[i].AccountId = r.AccountId()
 	}
-	_, err := r.txn.Model(&bankAccounts).Insert(&bankAccounts)
+	_, err := r.database.Model(&bankAccounts).Insert(&bankAccounts)
 	return errors.Wrap(err, "failed to insert bank accounts")
 }
 
 func (r *repositoryBase) GetBankAccountsByLinkId(linkId uint64) ([]models.BankAccount, error) {
 	var result []models.BankAccount
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"bank_account"."account_id" = ?`, r.AccountId()).
 		Where(`"bank_account"."link_id" = ? `, linkId).
 		Select(&result)
@@ -29,7 +29,7 @@ func (r *repositoryBase) GetBankAccountsByLinkId(linkId uint64) ([]models.BankAc
 
 func (r *repositoryBase) GetBankAccount(bankAccountId uint64) (*models.BankAccount, error) {
 	var result models.BankAccount
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"bank_account"."account_id" = ?`, r.AccountId()).
 		Where(`"bank_account"."bank_account_id" = ? `, bankAccountId).
 		Select(&result)
@@ -50,7 +50,7 @@ func (r *repositoryBase) UpdateBankAccounts(accounts []models.BankAccount) error
 		accounts[i].AccountId = r.AccountId()
 	}
 
-	_, err := r.txn.Model(&accounts).WherePK().UpdateNotZero(&accounts)
+	_, err := r.database.Model(&accounts).WherePK().UpdateNotZero(&accounts)
 	if err != nil {
 		return errors.Wrap(err, "failed to update bank accounts")
 	}

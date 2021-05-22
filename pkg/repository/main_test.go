@@ -22,7 +22,7 @@ func GetTestAuthenticatedRepository(t *testing.T) Repository {
 	return &repositoryBase{
 		userId:    user.UserId,
 		accountId: user.AccountId,
-		txn:       txn,
+		database:  txn,
 		account:   user.Account,
 	}
 }

@@ -10,7 +10,7 @@ import (
 
 func (r *repositoryBase) GetSpending(ctx context.Context, bankAccountId uint64) ([]models.Spending, error) {
 	var result []models.Spending
-	err := r.txn.ModelContext(ctx, &result).
+	err := r.database.ModelContext(ctx, &result).
 		Where(`"spending"."account_id" = ?`, r.AccountId()).
 		Where(`"spending"."bank_account_id" = ?`, bankAccountId).
 		Select(&result)
@@ -23,7 +23,7 @@ func (r *repositoryBase) GetSpending(ctx context.Context, bankAccountId uint64) 
 
 func (r *repositoryBase) GetSpendingByFundingSchedule(bankAccountId, fundingScheduleId uint64) ([]models.Spending, error) {
 	result := make([]models.Spending, 0)
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"spending"."account_id" = ?`, r.AccountId()).
 		Where(`"spending"."bank_account_id" = ?`, bankAccountId).
 		Where(`"spending"."funding_schedule_id" = ?`, fundingScheduleId).
@@ -39,7 +39,7 @@ func (r *repositoryBase) CreateSpending(spending *models.Spending) error {
 	spending.AccountId = r.AccountId()
 	spending.DateCreated = time.Now().UTC()
 
-	_, err := r.txn.Model(spending).Insert(spending)
+	_, err := r.database.Model(spending).Insert(spending)
 	return errors.Wrap(err, "failed to create spending")
 }
 
@@ -51,7 +51,7 @@ func (r *repositoryBase) UpdateExpenses(bankAccountId uint64, updates []models.S
 		updates[i].BankAccountId = bankAccountId
 	}
 
-	_, err := r.txn.Model(&updates).
+	_, err := r.database.Model(&updates).
 		Update(&updates)
 	if err != nil {
 		return errors.Wrap(err, "failed to update expenses")
@@ -62,7 +62,7 @@ func (r *repositoryBase) UpdateExpenses(bankAccountId uint64, updates []models.S
 
 func (r *repositoryBase) GetSpendingById(bankAccountId, spendingId uint64) (*models.Spending, error) {
 	var result models.Spending
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Relation("FundingSchedule").
 		Where(`"spending"."account_id" = ?`, r.AccountId()).
 		Where(`"spending"."bank_account_id" = ?`, bankAccountId).
@@ -79,7 +79,7 @@ func (r *repositoryBase) DeleteSpending(ctx context.Context, bankAccountId, spen
 	span := sentry.StartSpan(ctx, "Delete Spending")
 	defer span.Finish()
 
-	_, err := r.txn.ModelContext(span.Context(), &models.Transaction{}).
+	_, err := r.database.ModelContext(span.Context(), &models.Transaction{}).
 		Set(`"spending_id" = NULL`).
 		Set(`"spending_amount" = NULL`).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
@@ -90,7 +90,7 @@ func (r *repositoryBase) DeleteSpending(ctx context.Context, bankAccountId, spen
 		return errors.Wrap(err, "failed to remove spending from any transactions")
 	}
 
-	result, err := r.txn.ModelContext(span.Context(), &models.Spending{}).
+	result, err := r.database.ModelContext(span.Context(), &models.Spending{}).
 		Where(`"spending"."account_id" = ?`, r.AccountId()).
 		Where(`"spending"."bank_account_id" = ?`, bankAccountId).
 		Where(`"spending"."spending_id" = ?`, spendingId).

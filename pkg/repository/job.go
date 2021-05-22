@@ -143,7 +143,7 @@ func (j *jobRepository) GetBankAccountsWithPendingTransactions() ([]CheckingPend
 
 func (r *repositoryBase) GetJob(jobId string) (models.Job, error) {
 	var result models.Job
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"job"."account_id" = ?`, r.AccountId()).
 		Where(`"job"."job_id" = ?`, jobId).
 		Limit(1).

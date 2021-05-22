@@ -8,7 +8,7 @@ import (
 
 func (r *repositoryBase) GetFundingSchedules(bankAccountId uint64) ([]models.FundingSchedule, error) {
 	result := make([]models.FundingSchedule, 0)
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"funding_schedule"."account_id" = ?`, r.AccountId()).
 		Where(`"funding_schedule"."bank_account_id" = ?`, bankAccountId).
 		Select(&result)
@@ -17,7 +17,7 @@ func (r *repositoryBase) GetFundingSchedules(bankAccountId uint64) ([]models.Fun
 
 func (r *repositoryBase) GetFundingSchedule(bankAccountId, fundingScheduleId uint64) (*models.FundingSchedule, error) {
 	var result models.FundingSchedule
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"funding_schedule"."account_id" = ?`, r.AccountId()).
 		Where(`"funding_schedule"."bank_account_id" = ?`, bankAccountId).
 		Where(`"funding_schedule"."funding_schedule_id" = ?`, fundingScheduleId).
@@ -32,14 +32,14 @@ func (r *repositoryBase) GetFundingSchedule(bankAccountId, fundingScheduleId uin
 
 func (r *repositoryBase) CreateFundingSchedule(fundingSchedule *models.FundingSchedule) error {
 	fundingSchedule.AccountId = r.AccountId()
-	_, err := r.txn.Model(fundingSchedule).
+	_, err := r.database.Model(fundingSchedule).
 		Insert(fundingSchedule)
 
 	return errors.Wrap(err, "failed to create funding schedule")
 }
 
 func (r *repositoryBase) UpdateNextFundingScheduleDate(fundingScheduleId uint64, nextOccurrence time.Time) error {
-	_, err := r.txn.Model(&models.FundingSchedule{}).
+	_, err := r.database.Model(&models.FundingSchedule{}).
 		Set(`"next_occurrence" = ?`, nextOccurrence).
 		Where(`"funding_schedule"."account_id" = ?`, r.AccountId()).
 		Where(`"funding_schedule"."funding_schedule_id" = ?`, fundingScheduleId).

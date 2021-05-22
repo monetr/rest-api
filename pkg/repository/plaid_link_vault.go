@@ -9,7 +9,7 @@ import (
 )
 
 func (r *repositoryBase) CreatePlaidLink(link *models.PlaidLink) error {
-	_, err := r.txn.Model(link).Insert(link)
+	_, err := r.database.Model(link).Insert(link)
 	if err != nil {
 		return errors.Wrap(err, "failed to create plaid link")
 	}

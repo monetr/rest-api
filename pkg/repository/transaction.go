@@ -20,13 +20,13 @@ func (r *repositoryBase) InsertTransactions(ctx context.Context, transactions []
 	for i := range transactions {
 		transactions[i].AccountId = r.AccountId()
 	}
-	_, err := r.txn.ModelContext(span.Context(), &transactions).Insert(&transactions)
+	_, err := r.database.ModelContext(span.Context(), &transactions).Insert(&transactions)
 	return errors.Wrap(err, "failed to insert transactions")
 }
 
 func (r *repositoryBase) GetPendingTransactionsForBankAccount(bankAccountId uint64) ([]models.Transaction, error) {
 	var result []models.Transaction
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
 		Where(`"transaction"."bank_account_id" = ?`, bankAccountId).
 		Where(`"transaction"."is_pending" = ?`, true).
@@ -40,7 +40,7 @@ func (r *repositoryBase) GetPendingTransactionsForBankAccount(bankAccountId uint
 
 func (r *repositoryBase) GetTransactionsByPlaidId(linkId uint64, plaidTransactionIds []string) (map[string]models.Transaction, error) {
 	var items []models.Transaction
-	err := r.txn.Model(&items).
+	err := r.database.Model(&items).
 		Join(`INNER JOIN "bank_accounts" AS "bank_account"`).
 		JoinOn(`"bank_account"."bank_account_id" = "transaction"."bank_account_id" AND "bank_account"."account_id" = "transaction"."account_id"`).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
@@ -61,7 +61,7 @@ func (r *repositoryBase) GetTransactionsByPlaidId(linkId uint64, plaidTransactio
 
 func (r *repositoryBase) GetTransactions(bankAccountId uint64, limit, offset int) ([]models.Transaction, error) {
 	var items []models.Transaction
-	err := r.txn.Model(&items).
+	err := r.database.Model(&items).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
 		Where(`"transaction"."bank_account_id" = ?`, bankAccountId).
 		Limit(limit).
@@ -78,7 +78,7 @@ func (r *repositoryBase) GetTransactions(bankAccountId uint64, limit, offset int
 
 func (r *repositoryBase) GetTransaction(bankAccountId, transactionId uint64) (*models.Transaction, error) {
 	var result models.Transaction
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
 		Where(`"transaction"."bank_account_id" = ?`, bankAccountId).
 		Where(`"transaction"."transaction_id" = ?`, transactionId).
@@ -94,7 +94,7 @@ func (r *repositoryBase) CreateTransaction(bankAccountId uint64, transaction *mo
 	transaction.AccountId = r.AccountId()
 	transaction.BankAccountId = bankAccountId
 
-	_, err := r.txn.Model(transaction).Insert(transaction)
+	_, err := r.database.Model(transaction).Insert(transaction)
 	if err != nil {
 		return errors.Wrap(err, "failed to create transaction")
 	}
@@ -105,7 +105,7 @@ func (r *repositoryBase) CreateTransaction(bankAccountId uint64, transaction *mo
 func (r *repositoryBase) UpdateTransaction(bankAccountId uint64, transaction *models.Transaction) error {
 	transaction.AccountId = r.AccountId()
 
-	_, err := r.txn.Model(transaction).
+	_, err := r.database.Model(transaction).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
 		Where(`"transaction"."bank_account_id" = ?`, bankAccountId).
 		WherePK().
@@ -127,7 +127,7 @@ func (r *repositoryBase) UpdateTransactions(ctx context.Context, transactions []
 		transactions[i].AccountId = r.AccountId()
 	}
 
-	result, err := r.txn.ModelContext(span.Context(), &transactions).
+	result, err := r.database.ModelContext(span.Context(), &transactions).
 		WherePK().
 		Update(&transactions)
 	if err != nil {
@@ -149,7 +149,7 @@ func (r *repositoryBase) DeleteTransaction(ctx context.Context, bankAccountId, t
 	span := sentry.StartSpan(ctx, "DeleteTransaction")
 	defer span.Finish()
 
-	_, err := r.txn.ModelContext(span.Context(), &models.Transaction{}).
+	_, err := r.database.ModelContext(span.Context(), &models.Transaction{}).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).
 		Where(`"transaction"."bank_account_id" = ?`, bankAccountId).
 		Where(`"transaction"."transaction_id" = ?`, transactionId).
@@ -163,7 +163,7 @@ func (r *repositoryBase) GetTransactionsByPlaidTransactionId(ctx context.Context
 	defer span.Finish()
 
 	result := make([]models.Transaction, 0)
-	err := r.txn.ModelContext(span.Context(), &result).
+	err := r.database.ModelContext(span.Context(), &result).
 		Join(`INNER JOIN "bank_accounts" AS "bank_account"`).
 		JoinOn(`"bank_account"."bank_account_id" = "transaction"."bank_account_id" AND "bank_account"."account_id" = "transaction"."account_id"`).
 		Where(`"transaction"."account_id" = ?`, r.AccountId()).

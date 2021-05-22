@@ -36,8 +36,8 @@ require (
 	github.com/stripe/stripe-go/v72 v72.45.0
 	github.com/swaggo/swag v1.7.0
 	github.com/teambition/rrule-go v1.7.0
+	github.com/uptrace/bun v0.1.7 // indirect
 	github.com/xlzd/gotp v0.0.0-20181030022105-c8557ba2c119
 	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d // indirect
-	golang.org/x/sys v0.0.0-20210415045647-66c3f260301c // indirect
 	gopkg.in/ezzarghili/recaptcha-go.v4 v4.3.0
 )

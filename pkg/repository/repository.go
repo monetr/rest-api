@@ -84,7 +84,7 @@ func NewRepositoryFromSession(userId, accountId uint64, database pg.DBI) Reposit
 	return &repositoryBase{
 		userId:    userId,
 		accountId: accountId,
-		txn:       database,
+		database:  database,
 	}
 }
 
@@ -112,7 +112,7 @@ func (r *repositoryBase) AccountIdStr() string {
 
 func (r *repositoryBase) GetMe() (*models.User, error) {
 	var user models.User
-	err := r.txn.Model(&user).
+	err := r.database.Model(&user).
 		Relation("Login").
 		Relation("Account").
 		Where(`"user"."user_id" = ? AND "user"."account_id" = ?`, r.userId, r.accountId).
@@ -131,14 +131,14 @@ func (r *repositoryBase) GetMe() (*models.User, error) {
 }
 
 func (r *repositoryBase) GetIsSetup() (bool, error) {
-	return r.txn.Model(&models.Link{}).
+	return r.database.Model(&models.Link{}).
 		Where(`"link"."account_id" = ?`, r.accountId).
 		Exists()
 }
 
 func (r *repositoryBase) GetBankAccounts() ([]models.BankAccount, error) {
 	var result []models.BankAccount
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"bank_account"."account_id" = ?`, r.AccountId()).
 		Select(&result)
 	return result, errors.Wrap(err, "failed to retrieve bank accounts")

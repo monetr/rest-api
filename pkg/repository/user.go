@@ -14,7 +14,7 @@ func (r *repositoryBase) UpdateUser(ctx context.Context, user *models.User) erro
 	user.UserId = r.UserId()
 	user.AccountId = r.AccountId()
 
-	result, err := r.txn.ModelContext(span.Context(), user).
+	result, err := r.database.ModelContext(span.Context(), user).
 		WherePK().
 		Update(user)
 	if err != nil {

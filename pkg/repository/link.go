@@ -20,7 +20,7 @@ func (r *repositoryBase) GetLink(ctx context.Context, linkId uint64) (*models.Li
 	span.Data["linkId"] = linkId
 
 	var link models.Link
-	err := r.txn.ModelContext(span.Context(), &link).
+	err := r.database.ModelContext(span.Context(), &link).
 		Relation("PlaidLink").
 		Relation("BankAccounts").
 		Where(`"link"."link_id" = ? AND "link"."account_id" = ?`, linkId, r.AccountId()).
@@ -35,7 +35,7 @@ func (r *repositoryBase) GetLink(ctx context.Context, linkId uint64) (*models.Li
 
 func (r *repositoryBase) GetLinks() ([]models.Link, error) {
 	var result []models.Link
-	err := r.txn.Model(&result).
+	err := r.database.Model(&result).
 		Where(`"link"."account_id" = ?`, r.accountId).
 		Select(&result)
 	if err != nil {
@@ -46,7 +46,7 @@ func (r *repositoryBase) GetLinks() ([]models.Link, error) {
 }
 
 func (r *repositoryBase) GetLinkIsManual(linkId uint64) (bool, error) {
-	ok, err := r.txn.Model(&models.Link{}).
+	ok, err := r.database.Model(&models.Link{}).
 		Where(`"link"."account_id" = ?`, r.AccountId()).
 		Where(`"link"."link_id" = ?`, linkId).
 		Where(`"link"."link_type" = ?`, models.ManualLinkType).
@@ -59,7 +59,7 @@ func (r *repositoryBase) GetLinkIsManual(linkId uint64) (bool, error) {
 }
 
 func (r *repositoryBase) GetLinkIsManualByBankAccountId(bankAccountId uint64) (bool, error) {
-	ok, err := r.txn.Model(&models.Link{}).
+	ok, err := r.database.Model(&models.Link{}).
 		Join(`INNER JOIN "bank_accounts" AS "bank_account"`).
 		JoinOn(`"bank_account"."link_id" = "link"."link_id" AND "bank_account"."account_id" = "link"."account_id"`).
 		Where(`"link"."account_id" = ?`, r.AccountId()).
@@ -82,7 +82,7 @@ func (r *repositoryBase) CreateLink(link *models.Link) error {
 	link.CreatedAt = now
 	link.UpdatedAt = now
 
-	_, err := r.txn.Model(link).Insert(link)
+	_, err := r.database.Model(link).Insert(link)
 	return errors.Wrap(err, "failed to insert link")
 }
 
@@ -92,6 +92,6 @@ func (r *repositoryBase) UpdateLink(link *models.Link) error {
 	link.UpdatedByUserId = &userId
 	link.UpdatedAt = time.Now().UTC()
 
-	_, err := r.txn.Model(link).WherePK().Returning(`*`).UpdateNotZero(link)
+	_, err := r.database.Model(link).WherePK().Returning(`*`).UpdateNotZero(link)
 	return errors.Wrap(err, "failed to update link")
 }

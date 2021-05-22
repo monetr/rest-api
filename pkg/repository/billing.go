@@ -41,7 +41,7 @@ func (r *repositoryBase) GetActiveSubscription(ctx context.Context) (*models.Sub
 	defer span.Finish()
 
 	var result models.Subscription
-	err := r.txn.ModelContext(span.Context(), &result).
+	err := r.database.ModelContext(span.Context(), &result).
 		Where(`"subscription"."account_id" = ?`, r.AccountId()).
 		Where(`"subscription"."status" = ?`, stripe.SubscriptionStatusActive).
 		Limit(1).
@@ -69,7 +69,7 @@ func (r *repositoryBase) CreateSubscription(ctx context.Context, subscription *m
 	subscription.AccountId = r.AccountId()
 	subscription.OwnedByUserId = r.UserId()
 
-	_, err := r.txn.ModelContext(span.Context(), subscription).
+	_, err := r.database.ModelContext(span.Context(), subscription).
 		Insert(subscription)
 
 	return errors.Wrap(err, "failed to create subscription")

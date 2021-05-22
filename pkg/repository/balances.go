@@ -19,7 +19,7 @@ type Balances struct {
 
 func (r *repositoryBase) GetBalances(ctx context.Context, bankAccountId uint64) (*Balances, error) {
 	var balance Balances
-	err := r.txn.ModelContext(ctx, &balance).
+	err := r.database.ModelContext(ctx, &balance).
 		Where(`"balances"."account_id" = ?`, r.AccountId()).
 		Where(`"balances"."bank_account_id" = ?`, bankAccountId).
 		Limit(1).
@@ -45,7 +45,7 @@ type FundingStats struct {
 
 func (r *repositoryBase) GetFundingStats(ctx context.Context, bankAccountId uint64) (*FundingStats, error) {
 	var stats FundingStats
-	err := r.txn.ModelContext(ctx, &stats).
+	err := r.database.ModelContext(ctx, &stats).
 		Where(`"funding_stats"."account_id" = ?`, r.AccountId()).
 		Where(`"funding_stats"."bank_account_id" = ?`, bankAccountId).
 		Select(&stats)
