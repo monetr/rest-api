@@ -1553,7 +1553,8 @@
                 "errorCode": {
                     "description": "If the link error is due to a problem on Plaid's side, then an error code will be included here to help display\nhelpful messages on the frontend to the user.",
                     "type": "string",
-                    "x-nullable": true
+                    "x-nullable": true,
+                    "example": "NO_ACCOUNTS"
                 },
                 "institutionId": {
                     "description": "Our internal Id for an institution. This is just an abstraction layer on top of Plaid's institution Id but would\nallow us to associate institutions with multiple integrations in the future. It is also meant to keep Plaid Id's\naway from the client's view as much as possible.",

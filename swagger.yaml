@@ -435,6 +435,7 @@ definitions:
         description: |-
           If the link error is due to a problem on Plaid's side, then an error code will be included here to help display
           helpful messages on the frontend to the user.
+        example: NO_ACCOUNTS
         type: string
         x-nullable: true
       institutionId:
