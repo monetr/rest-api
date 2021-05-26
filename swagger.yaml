@@ -431,6 +431,12 @@ definitions:
           name cannot be changed directly. But the custom institution name can.
         example: US Bank
         type: string
+      errorCode:
+        description: |-
+          If the link error is due to a problem on Plaid's side, then an error code will be included here to help display
+          helpful messages on the frontend to the user.
+        type: string
+        x-nullable: true
       institutionId:
         description: |-
           Our internal Id for an institution. This is just an abstraction layer on top of Plaid's institution Id but would
@@ -459,6 +465,7 @@ definitions:
           * 0 - `Unknown`: Indicates the link is not setup or ready to use, might also indicate there is a problem with the link.
           * 1 - `Pending`: The link is not ready to use and is being setup by the Plaid integration.
           * 2 - `Setup`: The link is ready to use. This is the default state for manual links.
+          * 3 - `Error`: The link is in an error state, this can happen if the Plaid link is experiencing problems.
         enum:
         - 0
         - 1

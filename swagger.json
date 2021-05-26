@@ -1550,6 +1550,11 @@
                     "type": "string",
                     "example": "US Bank"
                 },
+                "errorCode": {
+                    "description": "If the link error is due to a problem on Plaid's side, then an error code will be included here to help display\nhelpful messages on the frontend to the user.",
+                    "type": "string",
+                    "x-nullable": true
+                },
                 "institutionId": {
                     "description": "Our internal Id for an institution. This is just an abstraction layer on top of Plaid's institution Id but would\nallow us to associate institutions with multiple integrations in the future. It is also meant to keep Plaid Id's\naway from the client's view as much as possible.",
                     "type": "integer",
@@ -1567,7 +1572,7 @@
                     "example": 1245
                 },
                 "linkStatus": {
-                    "description": "Status of a link, this is used with the Plaid integration to determine whether or not a link has been completely\nsetup. If a link is in an Unknown or Pending state then the link has not had it's transactions retrieved yet from\nPlaid. Unknown might indicate there is a problem with the link itself.\n* 0 - `Unknown`: Indicates the link is not setup or ready to use, might also indicate there is a problem with the link.\n* 1 - `Pending`: The link is not ready to use and is being setup by the Plaid integration.\n* 2 - `Setup`: The link is ready to use. This is the default state for manual links.",
+                    "description": "Status of a link, this is used with the Plaid integration to determine whether or not a link has been completely\nsetup. If a link is in an Unknown or Pending state then the link has not had it's transactions retrieved yet from\nPlaid. Unknown might indicate there is a problem with the link itself.\n* 0 - `Unknown`: Indicates the link is not setup or ready to use, might also indicate there is a problem with the link.\n* 1 - `Pending`: The link is not ready to use and is being setup by the Plaid integration.\n* 2 - `Setup`: The link is ready to use. This is the default state for manual links.\n* 3 - `Error`: The link is in an error state, this can happen if the Plaid link is experiencing problems.",
                     "type": "integer",
                     "enum": [
                         0,
