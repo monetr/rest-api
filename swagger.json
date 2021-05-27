@@ -1015,6 +1015,47 @@
                     }
                 }
             }
+        },
+        "/plaid/update/{linkId:uint64}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing Plaid link, this can be used to re-authenticate a link if it requires it or to potentially solve an error state.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plaid"
+                ],
+                "summary": "Update Plaid Link",
+                "operationId": "update-plaid-link",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "The Link Id that you wish to put into update mode, must be a Plaid link.",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.PlaidNewLinkTokenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

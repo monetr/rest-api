@@ -1541,6 +1541,32 @@ paths:
       summary: New Plaid Token
       tags:
       - Plaid
+  /plaid/update/{linkId:uint64}:
+    put:
+      description: Update an existing Plaid link, this can be used to re-authenticate a link if it requires it or to potentially solve an error state.
+      operationId: update-plaid-link
+      parameters:
+      - description: The Link Id that you wish to put into update mode, must be a Plaid link.
+        in: path
+        name: linkId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.PlaidNewLinkTokenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Plaid Link
+      tags:
+      - Plaid
 securityDefinitions:
   ApiKeyAuth:
     in: header
