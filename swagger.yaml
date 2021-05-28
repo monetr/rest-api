@@ -454,6 +454,13 @@ definitions:
           intended to be a single "Manual" link per account, with any manually managed bank accounts underneath it.
         example: U.S. Bank
         type: string
+      lastSuccessfulUpdate:
+        description: |-
+          The last time transactions were successfully retrieved for this link. This date does not indicate the most recent
+          transaction retrieved, simply the most recent attempt to retrieve transactions that was successful.
+        example: "2021-05-21T05:24:12.958309Z"
+        type: string
+        x-nullable: true
       linkId:
         description: Our unique identifier for a link. This is globally unique across all accounts.
         example: 1245
@@ -489,7 +496,7 @@ definitions:
         description: |-
           The last time this link was updated. Currently this field is not really maintained, eventually this timestamp
           will indicate the last time a sync occurred between monetr and Plaid. Manual links don't change this field at
-          all.
+          all. **OLD**
         example: "2021-05-21T05:24:12.958309Z"
         type: string
       updatedByUserId:
@@ -519,6 +526,24 @@ definitions:
       token:
         description: A JWT that can be used to make authenticated requests for the user.
         example: eyJhbGciOiJI...
+        type: string
+    type: object
+  swag.NewPlaidTokenCallbackRequest:
+    properties:
+      accountIds:
+        example:
+        - KEdQjMo39lFwXKqKLlqEt6R3AgBWW1C6l8vDn
+        - r3DVlexNymfJkgZgonZeSQ4n5Koqqjtyrwvkp
+        items:
+          type: string
+        type: array
+      institutionId:
+        example: ins_117212
+        type: string
+      institutionName:
+        example: Navy Federal Credit Union
+        type: string
+      publicToken:
         type: string
     type: object
   swag.NewSpendingRequest:
@@ -820,6 +845,13 @@ definitions:
         items:
           $ref: '#/definitions/swag.SpendingResponse'
         type: array
+    type: object
+  swag.UpdatePlaidTokenCallbackRequest:
+    properties:
+      linkId:
+        type: integer
+      publicToken:
+        type: string
     type: object
   swag.UpdateSpendingRequest:
     properties:
@@ -1498,8 +1530,17 @@ paths:
       - Plaid
   /plaid/token/callback:
     post:
+      consumes:
+      - application/json
       description: Receives the public token after a user has authenticated their bank account to exchange with plaid.
       operationId: plaid-token-callback
+      parameters:
+      - description: New token callback request.
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/swag.NewPlaidTokenCallbackRequest'
       produces:
       - application/json
       responses:
@@ -1565,6 +1606,35 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Plaid Link
+      tags:
+      - Plaid
+  /plaid/update/callback:
+    post:
+      consumes:
+      - application/json
+      description: This is used when handling an update flow for a Plaid link. Rather than returning the public token to the normal callback endpoint, this one should be used instead. This one assumes the link already exists and handles it slightly differently than it would for a new link.
+      operationId: updated-token-callback
+      parameters:
+      - description: Update token callback request.
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/swag.UpdatePlaidTokenCallbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.LinkResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Updated Token Callback
       tags:
       - Plaid
 securityDefinitions:

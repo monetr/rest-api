@@ -968,6 +968,9 @@ var doc = `{
                     }
                 ],
                 "description": "Receives the public token after a user has authenticated their bank account to exchange with plaid.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -976,6 +979,17 @@ var doc = `{
                 ],
                 "summary": "Plaid Token Callback",
                 "operationId": "plaid-token-callback",
+                "parameters": [
+                    {
+                        "description": "New token callback request.",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.NewPlaidTokenCallbackRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1021,6 +1035,52 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/swag.PlaidNewLinkTokenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/plaid/update/callback": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This is used when handling an update flow for a Plaid link. Rather than returning the public token to the normal callback endpoint, this one should be used instead. This one assumes the link already exists and handles it slightly differently than it would for a new link.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plaid"
+                ],
+                "summary": "Updated Token Callback",
+                "operationId": "updated-token-callback",
+                "parameters": [
+                    {
+                        "description": "Update token callback request.",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.UpdatePlaidTokenCallbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.LinkResponse"
                         }
                     },
                     "500": {
@@ -1624,6 +1684,12 @@ var doc = `{
                     "type": "string",
                     "example": "U.S. Bank"
                 },
+                "lastSuccessfulUpdate": {
+                    "description": "The last time transactions were successfully retrieved for this link. This date does not indicate the most recent\ntransaction retrieved, simply the most recent attempt to retrieve transactions that was successful.",
+                    "type": "string",
+                    "x-nullable": true,
+                    "example": "2021-05-21T05:24:12.958309Z"
+                },
                 "linkId": {
                     "description": "Our unique identifier for a link. This is globally unique across all accounts.",
                     "type": "integer",
@@ -1649,7 +1715,7 @@ var doc = `{
                     "example": 2
                 },
                 "updatedAt": {
-                    "description": "The last time this link was updated. Currently this field is not really maintained, eventually this timestamp\nwill indicate the last time a sync occurred between monetr and Plaid. Manual links don't change this field at\nall.",
+                    "description": "The last time this link was updated. Currently this field is not really maintained, eventually this timestamp\nwill indicate the last time a sync occurred between monetr and Plaid. Manual links don't change this field at\nall. **OLD**",
                     "type": "string",
                     "example": "2021-05-21T05:24:12.958309Z"
                 },
@@ -1689,6 +1755,32 @@ var doc = `{
                     "description": "A JWT that can be used to make authenticated requests for the user.",
                     "type": "string",
                     "example": "eyJhbGciOiJI..."
+                }
+            }
+        },
+        "swag.NewPlaidTokenCallbackRequest": {
+            "type": "object",
+            "properties": {
+                "accountIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "KEdQjMo39lFwXKqKLlqEt6R3AgBWW1C6l8vDn",
+                        "r3DVlexNymfJkgZgonZeSQ4n5Koqqjtyrwvkp"
+                    ]
+                },
+                "institutionId": {
+                    "type": "string",
+                    "example": "ins_117212"
+                },
+                "institutionName": {
+                    "type": "string",
+                    "example": "Navy Federal Credit Union"
+                },
+                "publicToken": {
+                    "type": "string"
                 }
             }
         },
@@ -1953,6 +2045,17 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/swag.SpendingResponse"
                     }
+                }
+            }
+        },
+        "swag.UpdatePlaidTokenCallbackRequest": {
+            "type": "object",
+            "properties": {
+                "linkId": {
+                    "type": "integer"
+                },
+                "publicToken": {
+                    "type": "string"
                 }
             }
         },
