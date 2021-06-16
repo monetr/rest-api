@@ -1353,6 +1353,9 @@ var doc = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "customName": {
+                    "type": "string"
+                },
                 "date": {
                     "type": "string"
                 },

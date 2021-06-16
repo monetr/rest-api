@@ -148,6 +148,8 @@ definitions:
         type: array
       createdAt:
         type: string
+      customName:
+        type: string
       date:
         type: string
       isPending:
