@@ -20,11 +20,11 @@ var doc = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "Support",
-            "url": "http://github.com/monetrapp/rest-api"
+            "url": "http://github.com/monetr/rest-api"
         },
         "license": {
             "name": "Business Source License 1.1",
-            "url": "https://github.com/monetrapp/rest-api/blob/main/LICENSE"
+            "url": "https://github.com/monetr/rest-api/blob/main/LICENSE"
         },
         "version": "{{.Version}}"
     },
@@ -756,7 +756,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a checkout session for the user to enter billing information in and for us to associate it with a new subscription object.",
+                "description": "Create a checkout session for Stripe. This is used to manage new subscriptions to monetr and offload the complexity of managing subscriptions. **Note:** You cannot create a checkout session if you have an active subscrption.",
                 "consumes": [
                     "application/json"
                 ],
@@ -791,6 +791,76 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/controller.ApiError"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/billing/portal": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a Stripe portal session for managing the subscription and return the session Id to the client. The client can then redirect the user to this session to manage the monetr subscription completely within Stripe.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Billing"
+                ],
+                "summary": "Get Stripe Portal",
+                "operationId": "get-stripe-portal",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swag.CreatePortalSessionResponse"
+                            }
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/billing/wait": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Long poll endpoint to check to see if the subscription is activated yet. It will return 200 if the subscription is active. Otherwise it will block for 30 seconds and then return 408 if nothing has changed.",
+                "tags": [
+                    "Billing"
+                ],
+                "summary": "Wait For Stripe Subscription",
+                "operationId": "wait-for-stripe-subscription",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "408": {
+                        "description": ""
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1139,7 +1209,8 @@ var doc = `{
             "type": "object",
             "properties": {
                 "error": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "something went wrong on our end"
                 }
             }
         },
@@ -1166,11 +1237,23 @@ var doc = `{
                 }
             }
         },
+        "controller.SubscriptionNotActiveError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "subscription is not active"
+                }
+            }
+        },
         "models.Account": {
             "type": "object",
             "properties": {
                 "accountId": {
                     "type": "integer"
+                },
+                "subscriptionActiveUntil": {
+                    "type": "string"
                 },
                 "timezone": {
                     "type": "string"
@@ -1598,9 +1681,13 @@ var doc = `{
         "swag.CreateCheckoutSessionRequest": {
             "type": "object",
             "properties": {
+                "cancelPath": {
+                    "description": "The path that the user should be returned to if they exit the checkout session.",
+                    "type": "string"
+                },
                 "priceId": {
-                    "description": "PriceId represents the Id of the price object for the subscription. Price objects are associated with a single\nproduct. So a price represents both how much is being paid, and what is being paid for.",
-                    "type": "integer"
+                    "description": "Specify a specific Stripe Price ID to be used when creating the checkout session. If this is left blank then\nthe default price will be used for the checkout session.",
+                    "type": "string"
                 }
             }
         },
@@ -1623,6 +1710,15 @@ var doc = `{
                     "description": "Specify the institution name for the manual link. When created by the UI this will default to ` + "`" + `Manual` + "`" + ` and then\nany bank account's created that are manual will automatically be created for this link. Technically a link can\nbe created with any name at the moment, but this is meant to be a basic initial implementation for now.",
                     "type": "string",
                     "example": "Manual"
+                }
+            }
+        },
+        "swag.CreatePortalSessionResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "description": "The URL returned by Stripe for the customer's billing portal.",
+                    "type": "string"
                 }
             }
         },

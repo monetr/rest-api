@@ -2,6 +2,7 @@ definitions:
   controller.ApiError:
     properties:
       error:
+        example: something went wrong on our end
         type: string
     type: object
   controller.InvalidBankAccountIdError:
@@ -19,10 +20,18 @@ definitions:
       toSpendingId:
         type: integer
     type: object
+  controller.SubscriptionNotActiveError:
+    properties:
+      error:
+        example: subscription is not active
+        type: string
+    type: object
   models.Account:
     properties:
       accountId:
         type: integer
+      subscriptionActiveUntil:
+        type: string
       timezone:
         type: string
     type: object
@@ -362,11 +371,14 @@ definitions:
     type: object
   swag.CreateCheckoutSessionRequest:
     properties:
+      cancelPath:
+        description: The path that the user should be returned to if they exit the checkout session.
+        type: string
       priceId:
         description: |-
-          PriceId represents the Id of the price object for the subscription. Price objects are associated with a single
-          product. So a price represents both how much is being paid, and what is being paid for.
-        type: integer
+          Specify a specific Stripe Price ID to be used when creating the checkout session. If this is left blank then
+          the default price will be used for the checkout session.
+        type: string
     type: object
   swag.CreateCheckoutSessionResponse:
     properties:
@@ -387,6 +399,12 @@ definitions:
         type: string
     required:
     - institutionName
+    type: object
+  swag.CreatePortalSessionResponse:
+    properties:
+      url:
+        description: The URL returned by Stripe for the customer's billing portal.
+        type: string
     type: object
   swag.HealthResponse:
     properties:
@@ -924,11 +942,11 @@ host: api.monetr.app
 info:
   contact:
     name: Support
-    url: http://github.com/monetrapp/rest-api
+    url: http://github.com/monetr/rest-api
   description: This is the REST API for our budgeting application.
   license:
     name: Business Source License 1.1
-    url: https://github.com/monetrapp/rest-api/blob/main/LICENSE
+    url: https://github.com/monetr/rest-api/blob/main/LICENSE
   title: monetr's REST API
   version: "0.0"
 paths:
@@ -1399,7 +1417,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a checkout session for the user to enter billing information in and for us to associate it with a new subscription object.
+      description: Create a checkout session for Stripe. This is used to manage new subscriptions to monetr and offload the complexity of managing subscriptions. **Note:** You cannot create a checkout session if you have an active subscrption.
       operationId: create-checkout-session
       parameters:
       - description: New Checkout Session
@@ -1426,6 +1444,50 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create Checkout Session
+      tags:
+      - Billing
+  /billing/portal:
+    get:
+      description: Create a Stripe portal session for managing the subscription and return the session Id to the client. The client can then redirect the user to this session to manage the monetr subscription completely within Stripe.
+      operationId: get-stripe-portal
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/swag.CreatePortalSessionResponse'
+            type: array
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Stripe Portal
+      tags:
+      - Billing
+  /billing/wait:
+    get:
+      description: Long poll endpoint to check to see if the subscription is activated yet. It will return 200 if the subscription is active. Otherwise it will block for 30 seconds and then return 408 if nothing has changed.
+      operationId: wait-for-stripe-subscription
+      responses:
+        "200":
+          description: ""
+        "408":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Wait For Stripe Subscription
       tags:
       - Billing
   /config:
