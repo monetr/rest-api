@@ -11,6 +11,13 @@ definitions:
         example: invalid bank account Id provided
         type: string
     type: object
+  controller.MalformedJSONError:
+    properties:
+      error:
+        description: Will include a message indicating that the request body is not valid JSON.
+        example: malformed json
+        type: string
+    type: object
   controller.SpendingTransfer:
     properties:
       amount:
@@ -23,6 +30,9 @@ definitions:
   controller.SubscriptionNotActiveError:
     properties:
       error:
+        description: |-
+          Will include a message indicating that the user's subscription is not active. Will always be returned with a 402
+          status code.
         example: subscription is not active
         type: string
     type: object
@@ -1531,6 +1541,10 @@ paths:
             items:
               $ref: '#/definitions/swag.LinkResponse'
             type: array
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
         "500":
           description: Internal Server Error
           schema:
@@ -1562,7 +1576,11 @@ paths:
         "400":
           description: Malformed JSON.
           schema:
-            $ref: '#/definitions/controller.ApiError'
+            $ref: '#/definitions/controller.MalformedJSONError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
         "500":
           description: Something went wrong on our end.
           schema:

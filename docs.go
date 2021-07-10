@@ -939,6 +939,12 @@ var doc = `{
                             }
                         }
                     },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -986,7 +992,13 @@ var doc = `{
                     "400": {
                         "description": "Malformed JSON.",
                         "schema": {
-                            "$ref": "#/definitions/controller.ApiError"
+                            "$ref": "#/definitions/controller.MalformedJSONError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -1223,6 +1235,16 @@ var doc = `{
                 }
             }
         },
+        "controller.MalformedJSONError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "Will include a message indicating that the request body is not valid JSON.",
+                    "type": "string",
+                    "example": "malformed json"
+                }
+            }
+        },
         "controller.SpendingTransfer": {
             "type": "object",
             "properties": {
@@ -1241,6 +1263,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "description": "Will include a message indicating that the user's subscription is not active. Will always be returned with a 402\nstatus code.",
                     "type": "string",
                     "example": "subscription is not active"
                 }
