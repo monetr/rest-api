@@ -42,6 +42,10 @@ func TestRedisCache_Set(t *testing.T) {
 
 		err := cache.Set(context.Background(), "test:data", TestValue)
 		assert.NoError(t, err, "should successfully set value")
+
+		data, err := cache.Get(context.Background(), "test:data")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, data)
 	})
 
 	t.Run("nil value", func(t *testing.T) {

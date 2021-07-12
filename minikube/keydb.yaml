@@ -2,142 +2,164 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: keydb-0-config
+  name: keydb-config
   labels:
     app.kubernetes.io/name: keydb
     app.kubernetes.io/instance: keydb
 data:
+  config.sh: |-
+    #!/bin/bash
+    hostAddress="$HOSTNAME.keydb.$KEYDB_NAMESPACE.svc.cluster.local"
+    echo "Setting up $KEYDB_REPLICAS replicas"
+    declare -i replicas="$KEYDB_REPLICAS";
+    for (( i=0; i<$replicas; i++ ))
+    do
+      nodeAddress="keydb-$i.keydb.$KEYDB_NAMESPACE.svc.cluster.local"
+      if [[ "$hostAddress" = "$nodeAddress" ]]
+      then
+        # If the current node address matches the host address then skip this one.
+        continue
+      fi
+
+      echo "Adding $nodeAddress to config"
+      echo "replicaof $nodeAddress 6379" >> /etc/keydb/replication.conf
+    done
   keydb.conf: |-
     # assuming below parameters were set and IP address of this instance is keydb-0
     port 6379
-    requirepass mypassword123
-    masterauth mypassword123
+    protected-mode no
+
     # you will need to configure the following
     multi-master yes
     active-replica yes
-    replicaof keydb-1.keydb.default.svc.cluster.local 6379
-    replicaof keydb-2.keydb.default.svc.cluster.local 6379
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keydb-1-config
-  labels:
-    app.kubernetes.io/name: keydb
-    app.kubernetes.io/instance: keydb
-data:
-  keydb.conf: |-
-    # assuming below parameters were set and IP address of this instance is keydb-1
-    port 6379
-    requirepass mypassword123
-    masterauth mypassword123
-    # you will need to configure the following
-    multi-master yes
-    active-replica yes
-    replicaof keydb-0.keydb.default.svc.cluster.local 6379
-    replicaof keydb-2.keydb.default.svc.cluster.local 6379
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keydb-2-config
-  labels:
-    app.kubernetes.io/name: keydb
-    app.kubernetes.io/instance: keydb
-data:
-  keydb.conf: |-
-    # assuming below parameters were set and IP address of this instance is keydb-2
-    port 6379
-    requirepass mypassword123
-    masterauth mypassword123
-    # you will need to configure the following
-    multi-master yes
-    active-replica yes
-    replicaof keydb-0.keydb.default.svc.cluster.local 6379
-    replicaof keydb-1.keydb.default.svc.cluster.local 6379
+
+    include /etc/keydb/replication.conf
 
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: keydb-0
+  name: keydb
   labels:
     app: keydb
     name: keydb
     app.kubernetes.io/name: keydb
     app.kubernetes.io/instance: keydb
+    app.kubernetes.io/component: server
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
 spec:
-  hostname: keydb-0
-  subdomain: keydb
-  volumes:
-    - name: config
-      configMap:
-        name: keydb-0-config
-  containers:
-    - name: keydb
-      image: eqalpha/keydb:latest
-      imagePullPolicy: Always
-      ports:
-        - name: redis
-          containerPort: 6379
-      volumeMounts:
-        - mountPath: /etc/keydb
-          name: config
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: keydb-1
-  labels:
-    app: keydb
-    name: keydb
-    app.kubernetes.io/name: keydb
-    app.kubernetes.io/instance: keydb
-spec:
-  hostname: keydb-1
-  subdomain: keydb
-  volumes:
-    - name: config
-      configMap:
-        name: keydb-1-config
-  containers:
-    - name: keydb
-      image: eqalpha/keydb:latest
-      imagePullPolicy: Always
-      ports:
-        - name: redis
-          containerPort: 6379
-      volumeMounts:
-        - mountPath: /etc/keydb
-          name: config
-
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: keydb-2
-  labels:
-    app: keydb
-    name: keydb
-    app.kubernetes.io/name: keydb
-    app.kubernetes.io/instance: keydb
-spec:
-  hostname: keydb-2
-  subdomain: keydb
-  volumes:
-    - name: config
-      configMap:
-        name: keydb-2-config
-  containers:
-    - name: keydb
-      image: eqalpha/keydb:latest
-      imagePullPolicy: Always
-      ports:
-        - name: redis
-          containerPort: 6379
-      volumeMounts:
-        - mountPath: /etc/keydb
-          name: config
+  serviceName: keydb
+  podManagementPolicy: Parallel
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keydb
+      app.kubernetes.io/instance: keydb
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keydb
+        app.kubernetes.io/instance: keydb
+        app.kubernetes.io/component: server
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsGroup: 1000
+        runAsUser: 100
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: data
+          emptyDir: { }
+        - name: shared
+          emptyDir: { }
+        - name: config
+          configMap:
+            name: keydb-config
+      initContainers:
+        - name: configure
+          image: eqalpha/keydb:latest
+          command:
+            - "/bin/sh"
+            - "-ec"
+          args:
+            - |
+              echo "Setting up container";
+              cp /tmp/keydb/config.sh /etc/keydb/config.sh;
+              chmod +x /etc/keydb/config.sh;
+              /etc/keydb/config.sh;
+          env:
+            - name: KEYDB_REPLICAS
+              value: "3"
+            - name: KEYDB_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: shared
+              mountPath: /etc/keydb
+            - name: config
+              mountPath: /tmp/keydb
+      containers:
+        - name: keydb
+          image: eqalpha/keydb:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: KEYDB_REPLICAS
+              value: "3"
+            - name: KEYDB_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: redis
+              containerPort: 6379
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: shared
+              mountPath: /etc/keydb
+            - name: config
+              mountPath: /etc/keydb/keydb.conf
+              subPath: keydb.conf
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            failureThreshold: 1
+            successThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - "keydb-cli"
+                - "PING"
+            failureThreshold: 1
+            successThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 1
 
 ---
 apiVersion: v1

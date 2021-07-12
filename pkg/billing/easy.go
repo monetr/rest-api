@@ -71,6 +71,8 @@ func (p *postgresAccountRepository) GetAccount(ctx context.Context, accountId ui
 		return &account, nil
 	}
 
+	log.Trace("cache miss for account")
+
 	if err := p.db.ModelContext(span.Context(), &account).
 		Where(`"account"."account_id" = ?`, accountId).
 		Limit(1).

@@ -85,6 +85,7 @@ init-mini: info local-dependencies-maybe
 	make deploy-postgres
 	make vault-mini
 	make mail-mini
+	make keydb-mini
 	make deploy-mini-application
 	make vault-token
 	$(call infoMsg,Local environment is setup; you should be able to access the API at: https://api.$(LOCAL_DOMAIN))
@@ -189,7 +190,7 @@ init-mini-values: $(LOGIN_JWT_SECRET) $(REGISTER_JWT_SECRET)
 	$(eval REGISTER_JWT_SECRET_VALUE = $(shell cat $(REGISTER_JWT_SECRET)))
 	export jwt_secret_value=$(REGISTER_JWT_SECRET_VALUE) && yq e '.api.jwt.registrationJwtSecret = strenv(jwt_secret_value)' -i $(VALUES)
 	$(YQ) e '.api.postgreSql.address = "postgres.monetr.in"' -i $(VALUES)
-	$(YQ) e '.api.redis.address = "redis.$(MINIKUBE_NAMESPACE).svc.cluster.local"' -i $(VALUES)
+	$(YQ) e '.api.redis.address = "keydb.$(MINIKUBE_NAMESPACE).svc.cluster.local"' -i $(VALUES)
 	$(YQ) e '.api.cors.allowedOrigins[0] = "https://app.$(LOCAL_DOMAIN)"' -i $(VALUES)
 	$(YQ) e '.api.cors.debug = false' -i $(VALUES)
 	$(YQ) e '.serviceAccountName = "rest-api"' -i $(VALUES)
@@ -531,3 +532,7 @@ twem-mini:
 	$(KUBECTL) apply -f $(PWD)/minikube/twemproxy.yaml --namespace $(MINIKUBE_NAMESPACE)
 	$(KUBECTL) rollout status statefulset/twem --namespace $(MINIKUBE_NAMESPACE) --timeout=60s
 	$(YQ) e '.api.redis.address = "twem.$(MINIKUBE_NAMESPACE).svc.cluster.local"' -i $(VALUES)
+
+###################### KeyDB #########################################
+keydb-mini:
+	$(KUBECTL) apply -f $(PWD)/minikube/keydb.yaml --namespace $(MINIKUBE_NAMESPACE)

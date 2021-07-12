@@ -42,30 +42,42 @@ func NewCache(log *logrus.Entry, client *redis.Pool) Cache {
 	}
 }
 
-func (r *redisCache) send(ctx context.Context, commandName string, args ...interface{}) error {
-	conn, err := r.client.GetContext(ctx)
-	if err != nil {
-		return errors.Wrap(err, "failed to retrieve connection from pool")
-	}
+func (r *redisCache) send(ctx context.Context, commandName string, args ...interface{}) (err error) {
+	conn := r.client.Get()
 	defer func() {
+		if err := conn.Flush(); err != nil {
+			r.log.WithContext(ctx).WithError(err).Warn("failed to flush redis connection")
+		}
+		if connectionError := conn.Err(); connectionError != nil {
+			err = connectionError
+			r.log.WithContext(ctx).WithError(err).Warn("redis connection failure")
+		}
 		if err := conn.Close(); err != nil {
 			r.log.WithContext(ctx).WithError(err).Warn("failed to close/release redis connection")
 		}
 	}()
+
+	r.log.Tracef("REDIS: %s %v", commandName, args)
 
 	return conn.Send(commandName, args...)
 }
 
-func (r *redisCache) do(ctx context.Context, commandName string, args ...interface{}) (interface{}, error) {
-	conn, err := r.client.GetContext(ctx)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to retrieve connection from pool")
-	}
+func (r *redisCache) do(ctx context.Context, commandName string, args ...interface{}) (_ interface{}, err error) {
+	conn := r.client.Get()
 	defer func() {
+		if err := conn.Flush(); err != nil {
+			r.log.WithContext(ctx).WithError(err).Warn("failed to flush redis connection")
+		}
+		if connectionError := conn.Err(); connectionError != nil {
+			err = connectionError
+			r.log.WithContext(ctx).WithError(err).Warn("redis connection failure")
+		}
 		if err := conn.Close(); err != nil {
 			r.log.WithContext(ctx).WithError(err).Warn("failed to close/release redis connection")
 		}
 	}()
+
+	r.log.Tracef("REDIS: %s %v", commandName, args)
 
 	return conn.Do(commandName, args...)
 }
@@ -92,7 +104,7 @@ func (r *redisCache) SetTTL(ctx context.Context, key string, value []byte, lifet
 	return errors.Wrap(
 		r.send(
 			span.Context(),
-			"SET", key, value, "EXAT", time.Now().Add(lifetime).Unix(),
+			"SET", key, value, // "EXAT", time.Now().Add(lifetime).Unix(),
 		),
 		"failed to store item in cache",
 	)
