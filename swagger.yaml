@@ -1592,7 +1592,12 @@ paths:
       - Links
   /links/{linkId}:
     delete:
-      description: Remove a manual link from your account. This will remove
+      description: |-
+        Remove a manual link from your account. This will remove
+        - All bank accounts associated with this link.
+        - All spending objects associated with each of those bank accounts.
+        - All transactions for the those bank accounts.
+        This cannot be undone and data cannot be recovered.
       operationId: delete-manual-link
       parameters:
       - description: Link ID

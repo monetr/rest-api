@@ -1001,7 +1001,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Remove a manual link from your account. This will remove",
+                "description": "Remove a manual link from your account. This will remove\n- All bank accounts associated with this link.\n- All spending objects associated with each of those bank accounts.\n- All transactions for the those bank accounts.\nThis cannot be undone and data cannot be recovered.",
                 "produces": [
                     "application/json"
                 ],
