@@ -1610,6 +1610,22 @@ paths:
       summary: Wait For Plaid Account Data
       tags:
       - Plaid
+  /plaid/remove/{linkId:uint64}:
+    delete:
+      description: Remove a Plaid link from your account, this will revoke the access_token associated with the specified link.
+      operationId: remove-plaid-link
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove Plaid Link
+      tags:
+      - Plaid
   /plaid/token/callback:
     post:
       consumes:
