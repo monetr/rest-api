@@ -678,7 +678,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Lists the transactions for the specified bank account Id. Transactions are returned sorted by the date they were authorized (descending) and then by their numeric Id (descending). This means that transactions that were first seen later will be higher in the list than they may have actually occurred.",
+                "description": "Lists the transactions for the specified bank account Id. Transactions are returned sorted by the date\nthey were authorized (descending) and then by their numeric Id (descending). This means that\ntransactions that were first seen later will be higher in the list than they may have actually occurred.",
                 "produces": [
                     "application/json"
                 ],
@@ -714,7 +714,76 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Transaction"
+                                "$ref": "#/definitions/swag.TransactionResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bank_accounts/{bankAccountId}/transactions/{transactionId}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates the provided transaction.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Update Transaction",
+                "operationId": "update-transactions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Account ID",
+                        "name": "bankAccountId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "TransactionId ",
+                        "name": "transactionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated transaction",
+                        "name": "Transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.UpdateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swag.TransactionResponse"
                             }
                         }
                     },
@@ -1436,125 +1505,6 @@
                 }
             }
         },
-        "models.Spending": {
-            "type": "object",
-            "properties": {
-                "bankAccountId": {
-                    "type": "integer"
-                },
-                "currentAmount": {
-                    "type": "integer"
-                },
-                "dateCreated": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "fundingScheduleId": {
-                    "type": "integer"
-                },
-                "isBehind": {
-                    "type": "boolean"
-                },
-                "isPaused": {
-                    "type": "boolean"
-                },
-                "lastRecurrence": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nextContributionAmount": {
-                    "type": "integer"
-                },
-                "nextRecurrence": {
-                    "type": "string"
-                },
-                "recurrenceRule": {
-                    "type": "string"
-                },
-                "spendingId": {
-                    "type": "integer"
-                },
-                "spendingType": {
-                    "type": "integer"
-                },
-                "targetAmount": {
-                    "type": "integer"
-                },
-                "usedAmount": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.Transaction": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "integer"
-                },
-                "authorizedDate": {
-                    "type": "string"
-                },
-                "bankAccount": {
-                    "$ref": "#/definitions/models.BankAccount"
-                },
-                "bankAccountId": {
-                    "type": "integer"
-                },
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "customName": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "isPending": {
-                    "type": "boolean"
-                },
-                "merchantName": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "originalCategories": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "originalMerchantName": {
-                    "type": "string"
-                },
-                "originalName": {
-                    "type": "string"
-                },
-                "spending": {
-                    "$ref": "#/definitions/models.Spending"
-                },
-                "spendingAmount": {
-                    "description": "SpendingAmount is the amount deducted from the expense this transaction was spent from. This is used when a\ntransaction is more than the expense currently has allocated. If the transaction were to be deleted or changed we\nwant to make sure we return the correct amount to the expense.",
-                    "type": "integer"
-                },
-                "spendingId": {
-                    "type": "integer"
-                },
-                "transactionId": {
-                    "type": "integer"
-                }
-            }
-        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -2017,7 +1967,7 @@
                 "targetAmount": {
                     "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
                     "type": "integer",
-                    "minimum": 0.01,
+                    "minimum": 1,
                     "example": 1395
                 }
             }
@@ -2198,13 +2148,98 @@
                 "targetAmount": {
                     "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
                     "type": "integer",
-                    "minimum": 0.01,
+                    "minimum": 1,
                     "example": 1395
                 },
                 "usedAmount": {
                     "description": "Used amount is only valid for goals at this time. It indicates how much has been spent from the spending object,\nand is used to keep track of the goal's progress to its target without affecting the accuracy of the\n`currentAmount` field. A goal is complete when the `currentAmount` + `usedAmount` = `targetAmount`.",
                     "type": "integer",
                     "example": 1043
+                }
+            }
+        },
+        "swag.TransactionResponse": {
+            "type": "object",
+            "required": [
+                "amount",
+                "amount",
+                "bankAccountId",
+                "transactionId"
+            ],
+            "properties": {
+                "amount": {
+                    "description": "The amount of the transaction in cents. This is used when a transaction is \"spent-from\" a spending object.\n**NOTE**: `amount` cannot be updated on transactions that were created from Plaid.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "authorizedDate": {
+                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: `date` cannot be updated on transactions that were created from Plaid.",
+                    "type": "string"
+                },
+                "bankAccountId": {
+                    "description": "The Id of bank account that this transaction is associated with. A transaction can only be associated with a\nsingle bank account. It is required when creating a new transaction.",
+                    "type": "integer",
+                    "example": 43872
+                },
+                "categories": {
+                    "description": "Represents a path of categories that represents what type of spending this transaction was. For example:\n`[\"Restaurants\", \"Fast Food\"]`. A transaction could just have the category of `Restaurants`, but it can have a\nchild category of `Fast Food` as well. This field can be maintained directly by the end user. But is typically\ngenerated when the transaction is created from Plaid.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "x-nullable": true,
+                    "example": [
+                        "Restaurants",
+                        "Fast Food"
+                    ]
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "description": "Date is the date the transaction was created. This date cannot change on this particular transaction Id, but if\nthe transaction is in a `Pending` state then when the transaction clears a new transaction can be created and\nthis transaction would be deleted. This can change the `date` field when this occurs.\n**NOTE**: `date` cannot be updated on transactions that were created from Plaid.",
+                    "type": "string",
+                    "example": "2021-04-15T00:00:00-05:00"
+                },
+                "isPending": {
+                    "type": "boolean"
+                },
+                "merchantName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "originalCategories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "originalMerchantName": {
+                    "description": "Original merchant name is immutable. It can only be set when the transaction is created. This is used to preserve\nsome data about the original transaction and is primarily used by the Plaid integration. It is not required for\nmanually created transactions.",
+                    "type": "string",
+                    "example": "Uber"
+                },
+                "originalName": {
+                    "type": "string"
+                },
+                "spendingAmount": {
+                    "description": "SpendingAmount is the amount deducted from the expense this transaction was spent from. This is used when a\ntransaction is more than the expense currently has allocated. If the transaction were to be deleted or changed we\nwant to make sure we return the correct amount to the expense.",
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 800
+                },
+                "spendingId": {
+                    "description": "The expense or goal's spending Id that this transaction was spent from. When this is updated the spending amount\nwill also be updated here. On the spending object the allocated amount will be subtracted from up to the amount\nof this transaction. But the spending objects allocated amount will never be negative. If you have a transaction\nthat is $10.00 and you spend it from a spending object with only $8.00 allocated, then only $8.00 will be\nsubtracted from the spending object. Those $8.00 will be represented by the `spendingAmount` field here.",
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 54312
+                },
+                "transactionId": {
+                    "description": "The unique Id for the transaction within monetr. This is globally unique.",
+                    "type": "integer",
+                    "example": 58732
                 }
             }
         },
@@ -2282,8 +2317,57 @@
                 "targetAmount": {
                     "description": "How much the spending object should allocate by the next recurrence date. For goals this target is reached once\nand is considered complete, even if part of the total amount has been spent. For expenses this amount is\nattempted to be allocated before the recurrence date regardless of spending. This means that even if a\ntransaction is spent from this spending object the allocation system will still allocate more funds to this\nexpense if the transaction was spent before it is technically due AND the funding schedule occurs before the\nspecified next recurrence date. Changing this amount will recalculate contributions to this spending object.",
                     "type": "integer",
-                    "minimum": 0.01,
+                    "minimum": 1,
                     "example": 1395
+                }
+            }
+        },
+        "swag.UpdateTransactionRequest": {
+            "type": "object",
+            "required": [
+                "amount"
+            ],
+            "properties": {
+                "amount": {
+                    "description": "The amount of the transaction in cents. This is used when a transaction is \"spent-from\" a spending object.\n**NOTE**: `amount` cannot be updated on transactions that were created from Plaid.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "authorizedDate": {
+                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: `date` cannot be updated on transactions that were created from Plaid.",
+                    "type": "string"
+                },
+                "categories": {
+                    "description": "Represents a path of categories that represents what type of spending this transaction was. For example:\n`[\"Restaurants\", \"Fast Food\"]`. A transaction could just have the category of `Restaurants`, but it can have a\nchild category of `Fast Food` as well. This field can be maintained directly by the end user. But is typically\ngenerated when the transaction is created from Plaid.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "x-nullable": true,
+                    "example": [
+                        "Restaurants",
+                        "Fast Food"
+                    ]
+                },
+                "date": {
+                    "description": "Date is the date the transaction was created. This date cannot change on this particular transaction Id, but if\nthe transaction is in a `Pending` state then when the transaction clears a new transaction can be created and\nthis transaction would be deleted. This can change the `date` field when this occurs.\n**NOTE**: `date` cannot be updated on transactions that were created from Plaid.",
+                    "type": "string",
+                    "example": "2021-04-15T00:00:00-05:00"
+                },
+                "isPending": {
+                    "type": "boolean"
+                },
+                "merchantName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "spendingId": {
+                    "description": "The expense or goal's spending Id that this transaction was spent from. When this is updated the spending amount\nwill also be updated here. On the spending object the allocated amount will be subtracted from up to the amount\nof this transaction. But the spending objects allocated amount will never be negative. If you have a transaction\nthat is $10.00 and you spend it from a spending object with only $8.00 allocated, then only $8.00 will be\nsubtracted from the spending object. Those $8.00 will be represented by the `spendingAmount` field here.",
+                    "type": "integer",
+                    "x-nullable": true,
+                    "example": 54312
                 }
             }
         }
