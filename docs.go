@@ -2224,7 +2224,7 @@ var doc = `{
                     "example": "2021-04-15T00:00:00-05:00"
                 },
                 "isPending": {
-                    "description": "Indicates whether or not the transaction is pending. Pending transactions are deleted when they clear their\npending status and if the transaction completes, a new transaction with a non-pending status is created. If the\ntransaction clears its pending status but is not complete (refunded), then it is simply deleted.",
+                    "description": "Indicates whether or not the transaction is pending. Pending transactions are deleted when they clear their\npending status and if the transaction completes, a new transaction with a non-pending status is created. If the\ntransaction clears its pending status but is not complete (refunded), then it is simply deleted. This is only\nthe case with Plaid transactions, manual transactions can be updated between pending and non-pending in place.\n\n**NOTE**: ` + "`" + `isPending` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "boolean",
                     "example": true
                 },
@@ -2410,7 +2410,7 @@ var doc = `{
                     "example": "2021-04-15T00:00:00-05:00"
                 },
                 "isPending": {
-                    "description": "Indicates whether or not the transaction is pending. Pending transactions are deleted when they clear their\npending status and if the transaction completes, a new transaction with a non-pending status is created. If the\ntransaction clears its pending status but is not complete (refunded), then it is simply deleted.",
+                    "description": "Indicates whether or not the transaction is pending. Pending transactions are deleted when they clear their\npending status and if the transaction completes, a new transaction with a non-pending status is created. If the\ntransaction clears its pending status but is not complete (refunded), then it is simply deleted. This is only\nthe case with Plaid transactions, manual transactions can be updated between pending and non-pending in place.\n\n**NOTE**: ` + "`" + `isPending` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "boolean",
                     "example": true
                 },
