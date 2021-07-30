@@ -799,7 +799,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/swag.TransactionResponse"
+                                "$ref": "#/definitions/swag.TransactionUpdateResponse"
                             }
                         }
                     },
@@ -2189,7 +2189,7 @@ var doc = `{
                     "minimum": 1
                 },
                 "authorizedDate": {
-                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\n\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\n\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "string"
                 },
                 "bankAccountId": {
@@ -2256,6 +2256,26 @@ var doc = `{
                     "description": "The unique Id for the transaction within monetr. This is globally unique.",
                     "type": "integer",
                     "example": 58732
+                }
+            }
+        },
+        "swag.TransactionUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "description": "The new balances for the bank account that the transaction belongs to. This is returned so that the UI can easily\nsee the affects of updating a transaction's spending object right away.",
+                    "$ref": "#/definitions/swag.BalanceResponse"
+                },
+                "transaction": {
+                    "description": "The resulting transaction object with any calculated changes applied.",
+                    "$ref": "#/definitions/swag.TransactionResponse"
+                },
+                "updatedExpenses": {
+                    "description": "Will contain up to two spending objects. Includes the spending objects that were updated if the ` + "`" + `spendingId` + "`" + `\nfield of the transaction was changed in the request.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swag.SpendingResponse"
+                    }
                 }
             }
         },
@@ -2350,7 +2370,7 @@ var doc = `{
                     "minimum": 1
                 },
                 "authorizedDate": {
-                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\n\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\n\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "string"
                 },
                 "categories": {

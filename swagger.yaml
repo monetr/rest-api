@@ -797,6 +797,7 @@ definitions:
           > This field is only populated for UK institutions. For institutions in other countries, will be null.
 
           https://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions
+
           **NOTE**: `date` cannot be updated on transactions that were created from Plaid.
         type: string
       bankAccountId:
@@ -875,6 +876,24 @@ definitions:
     - amount
     - bankAccountId
     - transactionId
+    type: object
+  swag.TransactionUpdateResponse:
+    properties:
+      balance:
+        $ref: '#/definitions/swag.BalanceResponse'
+        description: |-
+          The new balances for the bank account that the transaction belongs to. This is returned so that the UI can easily
+          see the affects of updating a transaction's spending object right away.
+      transaction:
+        $ref: '#/definitions/swag.TransactionResponse'
+        description: The resulting transaction object with any calculated changes applied.
+      updatedExpenses:
+        description: |-
+          Will contain up to two spending objects. Includes the spending objects that were updated if the `spendingId`
+          field of the transaction was changed in the request.
+        items:
+          $ref: '#/definitions/swag.SpendingResponse'
+        type: array
     type: object
   swag.TransferResponse:
     properties:
@@ -977,6 +996,7 @@ definitions:
           > This field is only populated for UK institutions. For institutions in other countries, will be null.
 
           https://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions
+
           **NOTE**: `date` cannot be updated on transactions that were created from Plaid.
         type: string
       categories:
@@ -1528,7 +1548,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/swag.TransactionResponse'
+              $ref: '#/definitions/swag.TransactionUpdateResponse'
             type: array
         "400":
           description: Bad Request
