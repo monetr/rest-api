@@ -2184,12 +2184,12 @@ var doc = `{
             ],
             "properties": {
                 "amount": {
-                    "description": "The amount of the transaction in cents. This is used when a transaction is \"spent-from\" a spending object.\n**NOTE**: ` + "`" + `amount` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "The amount of the transaction in cents. This is used when a transaction is \"spent-from\" a spending object.Validate\n\n**NOTE**: ` + "`" + `amount` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "integer",
                     "minimum": 1
                 },
                 "authorizedDate": {
-                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\n\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "string"
                 },
                 "bankAccountId": {
@@ -2213,7 +2213,7 @@ var doc = `{
                     "type": "string"
                 },
                 "date": {
-                    "description": "Date is the date the transaction was created. This date cannot change on this particular transaction Id, but if\nthe transaction is in a ` + "`" + `Pending` + "`" + ` state then when the transaction clears a new transaction can be created and\nthis transaction would be deleted. This can change the ` + "`" + `date` + "`" + ` field when this occurs.\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "Date is the date the transaction was created. This date cannot change on this particular transaction Id, but if\nthe transaction is in a ` + "`" + `Pending` + "`" + ` state then when the transaction clears a new transaction can be created and\nthis transaction would be deleted. This can change the ` + "`" + `date` + "`" + ` field when this occurs.\n\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "string",
                     "example": "2021-04-15T00:00:00-05:00"
                 },
@@ -2345,12 +2345,12 @@ var doc = `{
             ],
             "properties": {
                 "amount": {
-                    "description": "The amount of the transaction in cents. This is used when a transaction is \"spent-from\" a spending object.\n**NOTE**: ` + "`" + `amount` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "The amount of the transaction in cents. This is used when a transaction is \"spent-from\" a spending object.Validate\n\n**NOTE**: ` + "`" + `amount` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "integer",
                     "minimum": 1
                 },
                 "authorizedDate": {
-                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "Authorized date comes from Plaid, but to my knowledge will not be populated in this API until we support UK\nbanks.\n\u003e This field is only populated for UK institutions. For institutions in other countries, will be null.\n\nhttps://plaid.com/docs/api/products/#transactions-get-response-authorized-datetime_transactions\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "string"
                 },
                 "categories": {
@@ -2366,7 +2366,7 @@ var doc = `{
                     ]
                 },
                 "date": {
-                    "description": "Date is the date the transaction was created. This date cannot change on this particular transaction Id, but if\nthe transaction is in a ` + "`" + `Pending` + "`" + ` state then when the transaction clears a new transaction can be created and\nthis transaction would be deleted. This can change the ` + "`" + `date` + "`" + ` field when this occurs.\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
+                    "description": "Date is the date the transaction was created. This date cannot change on this particular transaction Id, but if\nthe transaction is in a ` + "`" + `Pending` + "`" + ` state then when the transaction clears a new transaction can be created and\nthis transaction would be deleted. This can change the ` + "`" + `date` + "`" + ` field when this occurs.\n\n**NOTE**: ` + "`" + `date` + "`" + ` cannot be updated on transactions that were created from Plaid.",
                     "type": "string",
                     "example": "2021-04-15T00:00:00-05:00"
                 },
