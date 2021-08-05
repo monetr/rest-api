@@ -940,6 +940,15 @@ definitions:
           $ref: '#/definitions/swag.SpendingResponse'
         type: array
     type: object
+  swag.UpdateLinkRequest:
+    properties:
+      customInstitutionName:
+        description: |-
+          A custom name for the link's institution that can be set by the end user. Once a link is created the institution
+          name cannot be changed directly. But the custom institution name can.
+        example: US Bank
+        type: string
+    type: object
   swag.UpdatePlaidTokenCallbackRequest:
     properties:
       linkId:
@@ -1806,6 +1815,87 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete Manual Link
+      tags:
+      - Links
+    put:
+      consumes:
+      - application/json
+      description: Update an existing link.
+      operationId: update-link
+      parameters:
+      - description: Link ID
+        in: path
+        name: linkId
+        required: true
+        type: integer
+      - description: Updated Link
+        in: body
+        name: newLink
+        required: true
+        schema:
+          $ref: '#/definitions/swag.UpdateLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated link object after changes.
+          schema:
+            $ref: '#/definitions/swag.LinkResponse'
+        "304":
+          description: If no updates were made then the link object is returned unchanged.
+          schema:
+            $ref: '#/definitions/swag.LinkResponse'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "500":
+          description: Something went wrong on our end.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Link
+      tags:
+      - Links
+  /links/convert/{linkId}:
+    put:
+      description: Convert an existing link into a manual one.
+      operationId: convert-link
+      parameters:
+      - description: Link ID
+        in: path
+        name: linkId
+        required: true
+        type: integer
+      - description: New Manual Link
+        in: body
+        name: newLink
+        required: true
+        schema:
+          $ref: '#/definitions/swag.CreateLinkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New link object after being converted to a manual link.
+          schema:
+            $ref: '#/definitions/swag.LinkResponse'
+        "400":
+          description: The link specified is already a manual link.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "500":
+          description: Something went wrong on our end.
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Convert A Link To Manual
       tags:
       - Links
   /plaid/link/setup/wait/{linkId:uint64}:

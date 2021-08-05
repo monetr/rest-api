@@ -1079,7 +1079,132 @@ var doc = `{
                 }
             }
         },
+        "/links/convert/{linkId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Convert an existing link into a manual one.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Links"
+                ],
+                "summary": "Convert A Link To Manual",
+                "operationId": "convert-link",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Link ID",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New Manual Link",
+                        "name": "newLink",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.CreateLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New link object after being converted to a manual link.",
+                        "schema": {
+                            "$ref": "#/definitions/swag.LinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "The link specified is already a manual link.",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong on our end.",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/links/{linkId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing link.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Links"
+                ],
+                "summary": "Update Link",
+                "operationId": "update-link",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Link ID",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated Link",
+                        "name": "newLink",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swag.UpdateLinkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated link object after changes.",
+                        "schema": {
+                            "$ref": "#/definitions/swag.LinkResponse"
+                        }
+                    },
+                    "304": {
+                        "description": "If no updates were made then the link object is returned unchanged.",
+                        "schema": {
+                            "$ref": "#/definitions/swag.LinkResponse"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong on our end.",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -2310,6 +2435,16 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/swag.SpendingResponse"
                     }
+                }
+            }
+        },
+        "swag.UpdateLinkRequest": {
+            "type": "object",
+            "properties": {
+                "customInstitutionName": {
+                    "description": "A custom name for the link's institution that can be set by the end user. Once a link is created the institution\nname cannot be changed directly. But the custom institution name can.",
+                    "type": "string",
+                    "example": "US Bank"
                 }
             }
         },
