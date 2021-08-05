@@ -162,6 +162,18 @@ var doc = `{
                                 "$ref": "#/definitions/models.BankAccount"
                             }
                         }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
                     }
                 }
             },
@@ -199,6 +211,18 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.BankAccount"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
                         }
                     }
                 }
@@ -240,6 +264,12 @@ var doc = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -290,6 +320,12 @@ var doc = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -348,6 +384,12 @@ var doc = `{
                             "$ref": "#/definitions/controller.ApiError"
                         }
                     },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
                     "500": {
                         "description": "Failed to persist data.",
                         "schema": {
@@ -393,6 +435,12 @@ var doc = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -446,6 +494,12 @@ var doc = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -505,6 +559,12 @@ var doc = `{
                             "$ref": "#/definitions/controller.ApiError"
                         }
                     },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
                     "500": {
                         "description": "Failed to persist data.",
                         "schema": {
@@ -560,6 +620,12 @@ var doc = `{
                         "description": "Malformed JSON or invalid RRule.",
                         "schema": {
                             "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -622,6 +688,12 @@ var doc = `{
                         "description": "Malformed JSON or invalid RRule.",
                         "schema": {
                             "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -740,6 +812,12 @@ var doc = `{
                             "$ref": "#/definitions/controller.InvalidBankAccountIdError"
                         }
                     },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -807,6 +885,12 @@ var doc = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -2020,6 +2104,18 @@ var doc = `{
         "swag.LoginResponse": {
             "type": "object",
             "properties": {
+                "isActive": {
+                    "description": "Indicates whether or not the user that has been authenticated has an active subscription. The UI will use this to\nredirect the user to a payment page if their subscription is not active. If this field is not present then\nbilling is either not enabled. Or the user's subscription is active and no action needs to be taken.",
+                    "type": "boolean",
+                    "x-nullable": true,
+                    "example": true
+                },
+                "nextUrl": {
+                    "description": "Next URL is provided by the API if the user needs to be redirected immediately after authenticating. This is used\nin conjunction with the ` + "`" + `isActive` + "`" + ` field for directing users to the payment page gracefully. If this field is not\npresent then billing is either not enabled. Or the user's subscription is active and no action needs to be taken.\nIt is possible that this field may be used in the future independent of ` + "`" + `isActive` + "`" + ` so logic should be build for\nit regardless of the ` + "`" + `isActive` + "`" + ` field's presence.",
+                    "type": "string",
+                    "x-nullable": true,
+                    "example": "/account/subscribe"
+                },
                 "token": {
                     "description": "A JWT that can be used to make authenticated requests for the user.",
                     "type": "string",
