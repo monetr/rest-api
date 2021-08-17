@@ -1066,6 +1066,50 @@ var doc = `{
                 }
             }
         },
+        "/link/wait/{linkId:uint64}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to \"wait\" for all of the data associated with a link to be deleted. If the link is\nis already deleted then a simple **200** is returned to the caller. If the link is not deleted then this\nendpoint will block for up to 30 seconds at a time while it waits for the link to be removed. If it is\nremoved while the endpoint is blocking then it will return 200 at that time.",
+                "tags": [
+                    "Links"
+                ],
+                "summary": "Wait For Link Deletion",
+                "operationId": "wait-for-link-deletion",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Link ID for the link that was/is being removed.",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "408": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/links": {
             "get": {
                 "security": [
@@ -1226,6 +1270,63 @@ var doc = `{
             }
         },
         "/links/{linkId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a single specific link using the link's unique Id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Links"
+                ],
+                "summary": "Get Link",
+                "operationId": "get-link",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Link ID",
+                        "name": "linkId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.LinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.InvalidLinkIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.LinkNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -1281,6 +1382,12 @@ var doc = `{
                             "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.LinkNotFoundError"
+                        }
+                    },
                     "500": {
                         "description": "Something went wrong on our end.",
                         "schema": {
@@ -1295,7 +1402,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Remove a manual link from your account. This will remove\n- All bank accounts associated with this link.\n- All spending objects associated with each of those bank accounts.\n- All transactions for the those bank accounts.\nThis cannot be undone and data cannot be recovered.",
+                "description": "Remove a link from your account. This will remove\n- All bank accounts associated with this link.\n- All spending objects associated with each of those bank accounts.\n- All transactions for the those bank accounts.\nThis cannot be undone and data cannot be recovered.\nIf the link specified is a Plaid link, then the access_token associated with that link will also be\nrevoked. Link data is deleted in the background, so if you need to \"wait\" for all of the link's data to\nbe properly deleted. Then you should poll the ` + "`" + `/link/wait` + "`" + ` endpoint.",
                 "produces": [
                     "application/json"
                 ],
@@ -1307,7 +1414,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Link ID",
+                        "description": "Link ID for the plaid link that is being setup. NOTE: Not Plaid's ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.",
                         "name": "linkId",
                         "in": "path",
                         "required": true
@@ -1321,6 +1428,12 @@ var doc = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
                     },
                     "500": {
@@ -1347,7 +1460,7 @@ var doc = `{
                 "operationId": "wait-for-plaid-data",
                 "parameters": [
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Link ID for the plaid link that is being setup. NOTE: Not Plaid's ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.",
                         "name": "linkId",
                         "in": "path",
@@ -1360,32 +1473,6 @@ var doc = `{
                     },
                     "408": {
                         "description": ""
-                    }
-                }
-            }
-        },
-        "/plaid/remove/{linkId:uint64}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Remove a Plaid link from your account, this will revoke the access_token associated with the specified link.",
-                "tags": [
-                    "Plaid"
-                ],
-                "summary": "Remove Plaid Link",
-                "operationId": "remove-plaid-link",
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/controller.ApiError"
-                        }
                     }
                 }
             }
@@ -1578,8 +1665,29 @@ var doc = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "description": "Contains an error telling the user that they must provide a valid bank account Id for this request.",
                     "type": "string",
                     "example": "invalid bank account Id provided"
+                }
+            }
+        },
+        "controller.InvalidLinkIdError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "Contains an error telling the user that they must provide a valid link Id for this request.",
+                    "type": "string",
+                    "example": "must specify a link Id to retrieve"
+                }
+            }
+        },
+        "controller.LinkNotFoundError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "This error is returned when the user attempts to retrieve a link that does not exist or belong to their account.",
+                    "type": "string",
+                    "example": "failed to retrieve link: record does not exist"
                 }
             }
         },

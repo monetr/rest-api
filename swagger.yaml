@@ -8,7 +8,22 @@ definitions:
   controller.InvalidBankAccountIdError:
     properties:
       error:
+        description: Contains an error telling the user that they must provide a valid bank account Id for this request.
         example: invalid bank account Id provided
+        type: string
+    type: object
+  controller.InvalidLinkIdError:
+    properties:
+      error:
+        description: Contains an error telling the user that they must provide a valid link Id for this request.
+        example: must specify a link Id to retrieve
+        type: string
+    type: object
+  controller.LinkNotFoundError:
+    properties:
+      error:
+        description: This error is returned when the user attempts to retrieve a link that does not exist or belong to their account.
+        example: 'failed to retrieve link: record does not exist'
         type: string
     type: object
   controller.MalformedJSONError:
@@ -1796,6 +1811,38 @@ paths:
       summary: Check API Health
       tags:
       - Health
+  /link/wait/{linkId:uint64}:
+    get:
+      description: |-
+        This endpoint is used to "wait" for all of the data associated with a link to be deleted. If the link is
+        is already deleted then a simple **200** is returned to the caller. If the link is not deleted then this
+        endpoint will block for up to 30 seconds at a time while it waits for the link to be removed. If it is
+        removed while the endpoint is blocking then it will return 200 at that time.
+      operationId: wait-for-link-deletion
+      parameters:
+      - description: Link ID for the link that was/is being removed.
+        in: path
+        name: linkId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: ""
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "408":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Wait For Link Deletion
+      tags:
+      - Links
   /links:
     get:
       description: Lists all of the links for the currently authenticated user.
@@ -1861,14 +1908,17 @@ paths:
   /links/{linkId}:
     delete:
       description: |-
-        Remove a manual link from your account. This will remove
+        Remove a link from your account. This will remove
         - All bank accounts associated with this link.
         - All spending objects associated with each of those bank accounts.
         - All transactions for the those bank accounts.
         This cannot be undone and data cannot be recovered.
+        If the link specified is a Plaid link, then the access_token associated with that link will also be
+        revoked. Link data is deleted in the background, so if you need to "wait" for all of the link's data to
+        be properly deleted. Then you should poll the `/link/wait` endpoint.
       operationId: delete-manual-link
       parameters:
-      - description: Link ID
+      - description: 'Link ID for the plaid link that is being setup. NOTE: Not Plaid''s ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.'
         in: path
         name: linkId
         required: true
@@ -1882,6 +1932,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/controller.ApiError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
         "500":
           description: Internal Server Error
           schema:
@@ -1889,6 +1943,43 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete Manual Link
+      tags:
+      - Links
+    get:
+      description: Retrieve a single specific link using the link's unique Id.
+      operationId: get-link
+      parameters:
+      - description: Link ID
+        in: path
+        name: linkId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swag.LinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidLinkIdError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.LinkNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Link
       tags:
       - Links
     put:
@@ -1923,6 +2014,10 @@ paths:
           description: Payment Required
           schema:
             $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.LinkNotFoundError'
         "500":
           description: Something went wrong on our end.
           schema:
@@ -1981,7 +2076,7 @@ paths:
         in: path
         name: linkId
         required: true
-        type: string
+        type: integer
       responses:
         "200":
           description: ""
@@ -1990,22 +2085,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Wait For Plaid Account Data
-      tags:
-      - Plaid
-  /plaid/remove/{linkId:uint64}:
-    delete:
-      description: Remove a Plaid link from your account, this will revoke the access_token associated with the specified link.
-      operationId: remove-plaid-link
-      responses:
-        "200":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/controller.ApiError'
-      security:
-      - ApiKeyAuth: []
-      summary: Remove Plaid Link
       tags:
       - Plaid
   /plaid/token/callback:
