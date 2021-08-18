@@ -60,44 +60,6 @@ definitions:
       timezone:
         type: string
     type: object
-  models.BankAccount:
-    properties:
-      accountSubType:
-        example: checking
-        type: string
-      accountType:
-        example: depository
-        type: string
-      availableBalance:
-        example: 102356
-        type: integer
-      bankAccountId:
-        example: 1234
-        type: integer
-      currentBalance:
-        description: |-
-          Current Balance is a 64-bit representation of a bank account's total balance (excluding pending transactions) in
-          the form of an integer. To derive a decimal value divide this value by 100.
-        example: 102400
-        type: integer
-      lastUpdated:
-        type: string
-      linkId:
-        example: 2345
-        type: integer
-      mask:
-        example: "0000"
-        type: string
-      name:
-        example: Checking Account
-        type: string
-      officialName:
-        example: US Bank - Checking Account
-        type: string
-      originalName:
-        example: 'Checking Account #1'
-        type: string
-    type: object
   models.FundingSchedule:
     properties:
       bankAccountId:
@@ -209,7 +171,126 @@ definitions:
         example: 12350
         type: integer
     type: object
-  swag.BankAccountCreateRequest:
+  swag.BankAccountResponse:
+    properties:
+      accountSubType:
+        description: |-
+          Sub Type can have numerous values, but given that the application currently only supports depository the most
+          common values you will see or use are; checking and savings. Other supported types (albeit untested) are; hsa,
+          cd, money market, paypal, prepaid, cash management and ebt.
+          More information on these can be found here: https://plaid.com/docs/api/accounts/#account-type-schema
+        example: checking
+        type: string
+      accountType:
+        description: |-
+          Account Type can be; depository, credit, loan, investment or other. At the time of writing this the application
+          will only support depository. Other types may be supported in the future.
+        example: depository
+        type: string
+      availableBalance:
+        description: |-
+          The balance available in the account represented as whole cents. This is typically the current balance minus the
+          total value of all pending transactions. This value is not calculated in the API and is retrieved from Plaid or
+          maintained manually for manual links.
+        example: 102356
+        type: integer
+      bankAccountId:
+        description: Bank Account ID uniquely identifies this bank account within monetr.
+        example: 85473
+        type: integer
+      currentBalance:
+        description: The current balance in the account as whole cents without taking into consideration any pending transactions.
+        example: 102400
+        type: integer
+      lastUpdated:
+        description: |-
+          Last Updated is used to keep track of changes to this specific bank account. It is updated when the balances that
+          are provided by an external party (like Plaid) are changed. It is not necessarily changed when the Safe-To-Spend
+          balance changes or when other fields on the bank account change.
+        example: "2021-04-15T00:00:00-05:00"
+        type: string
+      linkId:
+        description: |-
+          The numeric Id of the Link this bank account is associated with, if the link is manual then bank bank accounts
+          can be created manually via the API. If the Link is associated with Plaid though then bank accounts can only be
+          created through the Plaid interface. At the time of writing this there is not a way to add or remove a bank
+          account from an existing Plaid Link.
+        example: 2345
+        type: integer
+      mask:
+        description: |-
+          Last 4 digits of the bank account's account number. We do not store the full bank account number or any other
+          sensitive account information.
+        example: "9876"
+        type: string
+      name:
+        description: |-
+          Name of the account, this is different than the `originalName`. This field can be changed later on while the
+          `originalName` field cannot be changed once the account is created.
+        example: Checking Account
+        type: string
+      officialName:
+        description: |-
+          Official name is only used with bank accounts coming from Plaid. It is another name that Plaid uses for an
+          account.
+        example: US Bank - Checking Account
+        type: string
+      originalName:
+        description: |-
+          The original name of the bank account from when it was created. This name cannot be changed after the bank
+          account is created. This is primarily due to bank account's coming from a 3rd party provider like Plaid. But to
+          reduce the amount of logic in the application the same rule applies for manual links as well.
+        example: 'Checking Account #1'
+        type: string
+    required:
+    - accountSubType
+    - accountType
+    - bankAccountId
+    - linkId
+    type: object
+  swag.ConfigResponse:
+    properties:
+      ReCAPTCHAKey:
+        description: |-
+          The public ReCAPTCHA key that should be used by the frontend to verify some requests. Is omitted if ReCAPTCHA is
+          not enabled.
+        type: string
+        x-nullable: true
+      allowForgotPassword:
+        description: |-
+          **WIP** Not currently used. Will be implemented once proper email verification is working. Will also require that
+          the API can send emails to the end user.
+        type: boolean
+      allowSignUp:
+        description: Tells the UI whether or not registration requests will be accepted by the UI.
+        type: boolean
+      requireBetaCode:
+        description: |-
+          Indicates that registration requests will require a one time use beta code in order to be accepted. Beta codes
+          must be generated before hand by an admin.
+        type: boolean
+      requireLegalName:
+        description: |-
+          Indicates whether or not the UI should collect just a simple "firstName" or should require that the user provide
+          both their first and last name during registration.
+        type: boolean
+      requirePhoneNumber:
+        description: |-
+          **WIP** Not currently used. This is meant to be used for doing additional verification of the user's identity to
+          streamline the bank account linking process.
+        type: boolean
+      stripePublicKey:
+        description: The public key for Stripe, will be used for stripe elements on the frontend. Is omitted if stripe is not enabled.
+        type: string
+        x-nullable: true
+      verifyLogin:
+        description: Tells the API client that a ReCAPTCHA verification key will be required for login API calls.
+        type: boolean
+      verifyRegister:
+        description: Tells the API client that a ReCAPTCHA verification key will be required for registering a new user.
+        type: boolean
+    type: object
+  swag.CreateBankAccountRequest:
     properties:
       accountSubType:
         description: |-
@@ -269,48 +350,10 @@ definitions:
           reduce the amount of logic in the application the same rule applies for manual links as well.
         example: 'Checking Account #1'
         type: string
-    type: object
-  swag.ConfigResponse:
-    properties:
-      ReCAPTCHAKey:
-        description: |-
-          The public ReCAPTCHA key that should be used by the frontend to verify some requests. Is omitted if ReCAPTCHA is
-          not enabled.
-        type: string
-        x-nullable: true
-      allowForgotPassword:
-        description: |-
-          **WIP** Not currently used. Will be implemented once proper email verification is working. Will also require that
-          the API can send emails to the end user.
-        type: boolean
-      allowSignUp:
-        description: Tells the UI whether or not registration requests will be accepted by the UI.
-        type: boolean
-      requireBetaCode:
-        description: |-
-          Indicates that registration requests will require a one time use beta code in order to be accepted. Beta codes
-          must be generated before hand by an admin.
-        type: boolean
-      requireLegalName:
-        description: |-
-          Indicates whether or not the UI should collect just a simple "firstName" or should require that the user provide
-          both their first and last name during registration.
-        type: boolean
-      requirePhoneNumber:
-        description: |-
-          **WIP** Not currently used. This is meant to be used for doing additional verification of the user's identity to
-          streamline the bank account linking process.
-        type: boolean
-      stripePublicKey:
-        description: The public key for Stripe, will be used for stripe elements on the frontend. Is omitted if stripe is not enabled.
-        type: string
-        x-nullable: true
-      verifyLogin:
-        description: Tells the API client that a ReCAPTCHA verification key will be required for login API calls.
-        type: boolean
-      verifyRegister:
-        description: Tells the API client that a ReCAPTCHA verification key will be required for registering a new user.
-        type: boolean
+    required:
+    - accountSubType
+    - accountType
+    - linkId
     type: object
   swag.CreateCheckoutSessionRequest:
     properties:
@@ -1220,7 +1263,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.BankAccount'
+              $ref: '#/definitions/swag.BankAccountResponse'
             type: array
         "402":
           description: Payment Required
@@ -1246,14 +1289,14 @@ paths:
         name: newBankAccount
         required: true
         schema:
-          $ref: '#/definitions/swag.BankAccountCreateRequest'
+          $ref: '#/definitions/swag.CreateBankAccountRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.BankAccount'
+            $ref: '#/definitions/swag.BankAccountResponse'
         "402":
           description: Payment Required
           schema:
