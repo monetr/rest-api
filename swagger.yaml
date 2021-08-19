@@ -33,6 +33,13 @@ definitions:
         example: malformed json
         type: string
     type: object
+  controller.SpendingNotFoundError:
+    properties:
+      error:
+        description: This error is returned when the user attempts to retrieve a spending object that does not exist or belong to their account.
+        example: 'failed to retrieve spending: record does not exist'
+        type: string
+    type: object
   controller.SpendingTransfer:
     properties:
       amount:
@@ -1698,6 +1705,59 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: List Transactions
+      tags:
+      - Transactions
+  /bank_accounts/{bankAccountId}/transactions/{spendingId}:
+    get:
+      description: Lists the transactions for the specified spending Id within the specified bank account Id.
+      operationId: list-transactions-for-spending
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: Spending ID
+        in: path
+        name: spendingId
+        required: true
+        type: integer
+      - description: Specifies the number of transactions to return in the result, default is 25. Max is 100.
+        in: query
+        name: limit
+        type: integer
+      - description: The number of transactions to skip before returning any.
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/swag.TransactionResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.SpendingNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: List Transactions For Spending
       tags:
       - Transactions
   /bank_accounts/{bankAccountId}/transactions/{transactionId}:

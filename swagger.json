@@ -811,6 +811,87 @@
                 }
             }
         },
+        "/bank_accounts/{bankAccountId}/transactions/{spendingId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Lists the transactions for the specified spending Id within the specified bank account Id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "List Transactions For Spending",
+                "operationId": "list-transactions-for-spending",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bank Account ID",
+                        "name": "bankAccountId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Spending ID",
+                        "name": "spendingId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Specifies the number of transactions to return in the result, default is 25. Max is 100.",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "The number of transactions to skip before returning any.",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swag.TransactionResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.InvalidBankAccountIdError"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment Required",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SubscriptionNotActiveError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SpendingNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/bank_accounts/{bankAccountId}/transactions/{transactionId}": {
             "post": {
                 "security": [
@@ -1682,6 +1763,16 @@
                     "description": "Will include a message indicating that the request body is not valid JSON.",
                     "type": "string",
                     "example": "malformed json"
+                }
+            }
+        },
+        "controller.SpendingNotFoundError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "This error is returned when the user attempts to retrieve a spending object that does not exist or belong to their account.",
+                    "type": "string",
+                    "example": "failed to retrieve spending: record does not exist"
                 }
             }
         },
