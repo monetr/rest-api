@@ -1707,7 +1707,56 @@ paths:
       summary: List Transactions
       tags:
       - Transactions
-  /bank_accounts/{bankAccountId}/transactions/{spendingId}:
+  /bank_accounts/{bankAccountId}/transactions/{transactionId}:
+    post:
+      consumes:
+      - application/json
+      description: Updates the provided transaction.
+      operationId: update-transactions
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: bankAccountId
+        required: true
+        type: integer
+      - description: 'TransactionId '
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      - description: Updated transaction
+        in: body
+        name: Transaction
+        required: true
+        schema:
+          $ref: '#/definitions/swag.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/swag.TransactionUpdateResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controller.InvalidBankAccountIdError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/controller.SubscriptionNotActiveError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controller.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Transaction
+      tags:
+      - Transactions
+  /bank_accounts/{bankAccountId}/transactions/spending/{spendingId}:
     get:
       description: Lists the transactions for the specified spending Id within the specified bank account Id.
       operationId: list-transactions-for-spending
@@ -1758,55 +1807,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: List Transactions For Spending
-      tags:
-      - Transactions
-  /bank_accounts/{bankAccountId}/transactions/{transactionId}:
-    post:
-      consumes:
-      - application/json
-      description: Updates the provided transaction.
-      operationId: update-transactions
-      parameters:
-      - description: Bank Account ID
-        in: path
-        name: bankAccountId
-        required: true
-        type: integer
-      - description: 'TransactionId '
-        in: path
-        name: transactionId
-        required: true
-        type: integer
-      - description: Updated transaction
-        in: body
-        name: Transaction
-        required: true
-        schema:
-          $ref: '#/definitions/swag.UpdateTransactionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/swag.TransactionUpdateResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/controller.InvalidBankAccountIdError'
-        "402":
-          description: Payment Required
-          schema:
-            $ref: '#/definitions/controller.SubscriptionNotActiveError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/controller.ApiError'
-      security:
-      - ApiKeyAuth: []
-      summary: Update Transaction
       tags:
       - Transactions
   /billing/create_checkout:

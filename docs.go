@@ -827,7 +827,7 @@ var doc = `{
                 }
             }
         },
-        "/bank_accounts/{bankAccountId}/transactions/{spendingId}": {
+        "/bank_accounts/{bankAccountId}/transactions/spending/{spendingId}": {
             "get": {
                 "security": [
                     {
