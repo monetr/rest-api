@@ -967,6 +967,53 @@
                 }
             }
         },
+        "/billing/checkout/{checkoutSessionId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "After completing a checkout session, retrieve the outcome of the checkout session and persist it immediately.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Billing"
+                ],
+                "summary": "Get Post-Checkout Session Details",
+                "operationId": "get-post-checkout-session-details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Stripe Checkout Session ID",
+                        "name": "checkoutSessionId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swag.AfterCheckoutResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/billing/create_checkout": {
             "post": {
                 "security": [
@@ -1050,35 +1097,6 @@
                         "schema": {
                             "$ref": "#/definitions/controller.SubscriptionNotActiveError"
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/controller.ApiError"
-                        }
-                    }
-                }
-            }
-        },
-        "/billing/wait": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Long poll endpoint to check to see if the subscription is activated yet. It will return 200 if the subscription is active. Otherwise it will block for 30 seconds and then return 408 if nothing has changed.",
-                "tags": [
-                    "Billing"
-                ],
-                "summary": "Wait For Stripe Subscription",
-                "operationId": "wait-for-stripe-subscription",
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "408": {
-                        "description": ""
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -1933,6 +1951,25 @@
                 },
                 "numberOfGoals": {
                     "type": "integer"
+                }
+            }
+        },
+        "swag.AfterCheckoutResponse": {
+            "type": "object",
+            "properties": {
+                "isActive": {
+                    "description": "IsActive is used to indicate whether the user's subscription is not properly activated. On the UI this is\npropagated to the redux store to allow access to other application routes. If this is false then the subscription\nis not active and API calls to endpoints requiring payment will still fail.",
+                    "type": "boolean"
+                },
+                "message": {
+                    "description": "Message is included if there is a problem. Right now this happens if the checkout session is completed but the\nsubscription associated with that checkout session is not active.\n\n**NOTE:** This field is not included if the subscription is active and the after checkout is successful.",
+                    "type": "string",
+                    "x-nullable": true,
+                    "example": "Subscription is not active"
+                },
+                "nextUrl": {
+                    "description": "NextURL is used to direct the user to a specific page after their checkout has been completed and verified. This\nshould be followed by the web UI. Right now, successful checkouts will redirect to `/` which will prompt the user\nto either configure a Plaid link, or will present them with their budgeting data if there already is some.",
+                    "type": "string"
                 }
             }
         },
