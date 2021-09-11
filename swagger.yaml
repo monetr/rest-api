@@ -8,35 +8,40 @@ definitions:
   controller.InvalidBankAccountIdError:
     properties:
       error:
-        description: Contains an error telling the user that they must provide a valid bank account Id for this request.
+        description: Contains an error telling the user that they must provide a valid
+          bank account Id for this request.
         example: invalid bank account Id provided
         type: string
     type: object
   controller.InvalidLinkIdError:
     properties:
       error:
-        description: Contains an error telling the user that they must provide a valid link Id for this request.
+        description: Contains an error telling the user that they must provide a valid
+          link Id for this request.
         example: must specify a link Id to retrieve
         type: string
     type: object
   controller.LinkNotFoundError:
     properties:
       error:
-        description: This error is returned when the user attempts to retrieve a link that does not exist or belong to their account.
+        description: This error is returned when the user attempts to retrieve a link
+          that does not exist or belong to their account.
         example: 'failed to retrieve link: record does not exist'
         type: string
     type: object
   controller.MalformedJSONError:
     properties:
       error:
-        description: Will include a message indicating that the request body is not valid JSON.
+        description: Will include a message indicating that the request body is not
+          valid JSON.
         example: malformed json
         type: string
     type: object
   controller.SpendingNotFoundError:
     properties:
       error:
-        description: This error is returned when the user attempts to retrieve a spending object that does not exist or belong to their account.
+        description: This error is returned when the user attempts to retrieve a spending
+          object that does not exist or belong to their account.
         example: 'failed to retrieve spending: record does not exist'
         type: string
     type: object
@@ -174,7 +179,8 @@ definitions:
   swag.BalanceResponse:
     properties:
       available:
-        description: The available balance of the account, usually the current balance minus any pending transactions.
+        description: The available balance of the account, usually the current balance
+          minus any pending transactions.
         example: 124000
         type: integer
       bankAccountId:
@@ -184,7 +190,8 @@ definitions:
         example: 1234
         type: integer
       current:
-        description: The current balance of the account in cents. This typically excludes pending transaction values.
+        description: The current balance of the account in cents. This typically excludes
+          pending transaction values.
         example: 124396
         type: integer
       expenses:
@@ -226,11 +233,13 @@ definitions:
         example: 102356
         type: integer
       bankAccountId:
-        description: Bank Account ID uniquely identifies this bank account within monetr.
+        description: Bank Account ID uniquely identifies this bank account within
+          monetr.
         example: 85473
         type: integer
       currentBalance:
-        description: The current balance in the account as whole cents without taking into consideration any pending transactions.
+        description: The current balance in the account as whole cents without taking
+          into consideration any pending transactions.
         example: 102400
         type: integer
       lastUpdated:
@@ -293,7 +302,8 @@ definitions:
           the API can send emails to the end user.
         type: boolean
       allowSignUp:
-        description: Tells the UI whether or not registration requests will be accepted by the UI.
+        description: Tells the UI whether or not registration requests will be accepted
+          by the UI.
         type: boolean
       requireBetaCode:
         description: |-
@@ -311,14 +321,17 @@ definitions:
           streamline the bank account linking process.
         type: boolean
       stripePublicKey:
-        description: The public key for Stripe, will be used for stripe elements on the frontend. Is omitted if stripe is not enabled.
+        description: The public key for Stripe, will be used for stripe elements on
+          the frontend. Is omitted if stripe is not enabled.
         type: string
         x-nullable: true
       verifyLogin:
-        description: Tells the API client that a ReCAPTCHA verification key will be required for login API calls.
+        description: Tells the API client that a ReCAPTCHA verification key will be
+          required for login API calls.
         type: boolean
       verifyRegister:
-        description: Tells the API client that a ReCAPTCHA verification key will be required for registering a new user.
+        description: Tells the API client that a ReCAPTCHA verification key will be
+          required for registering a new user.
         type: boolean
     type: object
   swag.CreateBankAccountRequest:
@@ -345,7 +358,8 @@ definitions:
         example: 102356
         type: integer
       currentBalance:
-        description: The current balance in the account as whole cents without taking into consideration any pending transactions.
+        description: The current balance in the account as whole cents without taking
+          into consideration any pending transactions.
         example: 102400
         type: integer
       linkId:
@@ -389,7 +403,8 @@ definitions:
   swag.CreateCheckoutSessionRequest:
     properties:
       cancelPath:
-        description: The path that the user should be returned to if they exit the checkout session.
+        description: The path that the user should be returned to if they exit the
+          checkout session.
         type: string
       priceId:
         description: |-
@@ -433,7 +448,8 @@ definitions:
           simply not be served.
         type: boolean
       buildTime:
-        description: The time the current REST API executable was built. Typically when the container build was initiated.
+        description: The time the current REST API executable was built. Typically
+          when the container build was initiated.
         type: string
       dbHealthy:
         description: |-
@@ -453,7 +469,8 @@ definitions:
   swag.LinkResponse:
     properties:
       createdAt:
-        description: The timestamp the link was created in UTC. This cannot be modified by the end user.
+        description: The timestamp the link was created in UTC. This cannot be modified
+          by the end user.
         example: "2021-05-18T00:26:10.873089Z"
         type: string
       createdByUserId:
@@ -501,7 +518,8 @@ definitions:
         type: string
         x-nullable: true
       linkId:
-        description: Our unique identifier for a link. This is globally unique across all accounts.
+        description: Our unique identifier for a link. This is globally unique across
+          all accounts.
         example: 1245
         type: integer
       linkStatus:
@@ -539,7 +557,8 @@ definitions:
         example: "2021-05-21T05:24:12.958309Z"
         type: string
       updatedByUserId:
-        description: The user who last updated this link. Currently this field is not maintained well and should not be trusted.
+        description: The user who last updated this link. Currently this field is
+          not maintained well and should not be trusted.
         example: 89547
         type: integer
         x-nullable: true
@@ -547,7 +566,8 @@ definitions:
   swag.LoginRequest:
     properties:
       captcha:
-        description: ReCAPTCHA value from validation. Required if `verifyLogin` is enabled on the server.
+        description: ReCAPTCHA value from validation. Required if `verifyLogin` is
+          enabled on the server.
         example: 03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S...
         type: string
         x-nullable: true
@@ -581,7 +601,8 @@ definitions:
         type: string
         x-nullable: true
       token:
-        description: A JWT that can be used to make authenticated requests for the user.
+        description: A JWT that can be used to make authenticated requests for the
+          user.
         example: eyJhbGciOiJI...
         type: string
     type: object
@@ -620,7 +641,8 @@ definitions:
         example: 1st of every month
         type: string
       fundingScheduleId:
-        description: The desired funding schedule of the spending. Changing this will trigger a recalculation of the spending object.
+        description: The desired funding schedule of the spending. Changing this will
+          trigger a recalculation of the spending object.
         example: 8539
         type: integer
       isPaused:
@@ -630,7 +652,8 @@ definitions:
           to this spending object.
         type: boolean
       name:
-        description: Human friendly name of the spending object. Something like "Amazon Prime". But can be anything.
+        description: Human friendly name of the spending object. Something like "Amazon
+          Prime". But can be anything.
         example: Amazon Prime
         type: string
       nextRecurrence:
@@ -719,7 +742,8 @@ definitions:
         type: string
         x-nullable: true
       captcha:
-        description: ReCAPTCHA value from validation. Required if `verifyRegistration` is enabled on the server.
+        description: ReCAPTCHA value from validation. Required if `verifyRegistration`
+          is enabled on the server.
         example: 03AGdBq266UHyZ62gfKGJozRNQz17oIhSlj9S9S...
         type: string
         x-nullable: true
@@ -763,12 +787,14 @@ definitions:
         example: /setup
         type: string
       token:
-        description: A JWT that can be used to make authenticated requests for the newly created user.
+        description: A JWT that can be used to make authenticated requests for the
+          newly created user.
         example: eyJhbGciOiJI...
         type: string
       user:
         $ref: '#/definitions/models.User'
-        description: The created user and some basic information. This allows the UI to skip an API call to the /users/me endpoint.
+        description: The created user and some basic information. This allows the
+          UI to skip an API call to the /users/me endpoint.
     type: object
   swag.SpendingResponse:
     properties:
@@ -786,7 +812,8 @@ definitions:
         example: 1395
         type: integer
       dateCreated:
-        description: When the spending object was initially created. This value cannot be changed.
+        description: When the spending object was initially created. This value cannot
+          be changed.
         example: "2021-04-04T12:43:23-05:00"
         type: string
       description:
@@ -798,7 +825,8 @@ definitions:
         example: 1st of every month
         type: string
       fundingScheduleId:
-        description: The desired funding schedule of the spending. Changing this will trigger a recalculation of the spending object.
+        description: The desired funding schedule of the spending. Changing this will
+          trigger a recalculation of the spending object.
         example: 8539
         type: integer
       isBehind:
@@ -824,7 +852,8 @@ definitions:
         type: string
         x-nullable: true
       name:
-        description: Human friendly name of the spending object. Something like "Amazon Prime". But can be anything.
+        description: Human friendly name of the spending object. Something like "Amazon
+          Prime". But can be anything.
         example: Amazon Prime
         type: string
       nextRecurrence:
@@ -955,7 +984,8 @@ definitions:
         example: true
         type: boolean
       merchantName:
-        description: The merchant name that was specified by the user, or was imported with the transaction's data from Plaid.
+        description: The merchant name that was specified by the user, or was imported
+          with the transaction's data from Plaid.
         type: string
       name:
         description: |-
@@ -1006,7 +1036,8 @@ definitions:
         type: integer
         x-nullable: true
       transactionId:
-        description: The unique Id for the transaction within monetr. This is globally unique.
+        description: The unique Id for the transaction within monetr. This is globally
+          unique.
         example: 58732
         type: integer
     required:
@@ -1025,7 +1056,8 @@ definitions:
           see the affects of updating a transaction's spending object right away.
       transaction:
         $ref: '#/definitions/swag.TransactionResponse'
-        description: The resulting transaction object with any calculated changes applied.
+        description: The resulting transaction object with any calculated changes
+          applied.
       updatedExpenses:
         description: |-
           Will contain up to two spending objects. Includes the spending objects that were updated if the `spendingId`
@@ -1038,7 +1070,8 @@ definitions:
     properties:
       balance:
         $ref: '#/definitions/swag.BalanceResponse'
-        description: The balance of the bank account after the transferred allocations have been recalculated.
+        description: The balance of the bank account after the transferred allocations
+          have been recalculated.
       spending:
         description: |-
           An array of spending objects that were updated during the transfer. By persisting these to the client's memory
@@ -1074,7 +1107,8 @@ definitions:
         example: 1st of every month
         type: string
       fundingScheduleId:
-        description: The desired funding schedule of the spending. Changing this will trigger a recalculation of the spending object.
+        description: The desired funding schedule of the spending. Changing this will
+          trigger a recalculation of the spending object.
         example: 8539
         type: integer
       isPaused:
@@ -1084,7 +1118,8 @@ definitions:
           to this spending object.
         type: boolean
       name:
-        description: Human friendly name of the spending object. Something like "Amazon Prime". But can be anything.
+        description: Human friendly name of the spending object. Something like "Amazon
+          Prime". But can be anything.
         example: Amazon Prime
         type: string
       nextRecurrence:
@@ -1181,7 +1216,8 @@ definitions:
         example: true
         type: boolean
       merchantName:
-        description: The merchant name that was specified by the user, or was imported with the transaction's data from Plaid.
+        description: The merchant name that was specified by the user, or was imported
+          with the transaction's data from Plaid.
         type: string
       name:
         description: |-
@@ -1252,7 +1288,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Register creates a new login, user and account. Logins are used for authentication, users tie authentication to an account, and accounts hold budgeting data.
+      description: Register creates a new login, user and account. Logins are used
+        for authentication, users tie authentication to an account, and accounts hold
+        budgeting data.
       operationId: register
       parameters:
       - description: New User Registration
@@ -1285,7 +1323,8 @@ paths:
       - Authentication
   /bank_accounts:
     get:
-      description: Lists all of the bank accounts for the currently authenticated user.
+      description: Lists all of the bank accounts for the currently authenticated
+        user.
       operationId: list-all-bank-accounts
       produces:
       - application/json
@@ -1312,7 +1351,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: 'Create a bank account for the provided link. Note: Bank accounts can only be created this way for manual links. Attempting to create a bank account for a link that is associated with Plaid will result in an error.'
+      description: 'Create a bank account for the provided link. Note: Bank accounts
+        can only be created this way for manual links. Attempting to create a bank
+        account for a link that is associated with Plaid will result in an error.'
       operationId: create-bank-account
       parameters:
       - description: New Bank Account
@@ -1343,7 +1384,8 @@ paths:
       - Bank Accounts
   /bank_accounts/{bankAccountId}/balances:
     get:
-      description: Get the balances for the specified bank account (including calculated balances).
+      description: Get the balances for the specified bank account (including calculated
+        balances).
       operationId: get-bank-account-balances
       parameters:
       - description: Bank Account ID
@@ -1453,7 +1495,8 @@ paths:
       - Funding Schedules
   /bank_accounts/{bankAccountId}/funding_schedules/stats:
     get:
-      description: Retrieve information about how much spending objects will receive on the next funding schedule.
+      description: Retrieve information about how much spending objects will receive
+        on the next funding schedule.
       operationId: get-funding-status
       parameters:
       - description: Bank Account ID
@@ -1567,7 +1610,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update an existing spending object. Some changes may cause the spending object to be recalculated.
+      description: Update an existing spending object. Some changes may cause the
+        spending object to be recalculated.
       operationId: update-spending
       parameters:
       - description: Bank Account ID
@@ -1609,7 +1653,10 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete a spending object. This will set any transactions that have spent from this object back to spent from "Safe-To-Spend". If the spending object is successfully deleted, this endpoint simply returns 200 with an empty body.
+      description: Delete a spending object. This will set any transactions that have
+        spent from this object back to spent from "Safe-To-Spend". If the spending
+        object is successfully deleted, this endpoint simply returns 200 with an empty
+        body.
       operationId: delete-spending
       parameters:
       - description: Bank Account ID
@@ -1697,7 +1744,8 @@ paths:
         name: bankAccountId
         required: true
         type: integer
-      - description: Specifies the number of transactions to return in the result, default is 25. Max is 100.
+      - description: Specifies the number of transactions to return in the result,
+          default is 25. Max is 100.
         in: query
         name: limit
         type: integer
@@ -1782,7 +1830,8 @@ paths:
       - Transactions
   /bank_accounts/{bankAccountId}/transactions/spending/{spendingId}:
     get:
-      description: Lists the transactions for the specified spending Id within the specified bank account Id.
+      description: Lists the transactions for the specified spending Id within the
+        specified bank account Id.
       operationId: list-transactions-for-spending
       parameters:
       - description: Bank Account ID
@@ -1795,7 +1844,8 @@ paths:
         name: spendingId
         required: true
         type: integer
-      - description: Specifies the number of transactions to return in the result, default is 25. Max is 100.
+      - description: Specifies the number of transactions to return in the result,
+          default is 25. Max is 100.
         in: query
         name: limit
         type: integer
@@ -1835,7 +1885,8 @@ paths:
       - Transactions
   /billing/checkout/{checkoutSessionId}:
     get:
-      description: After completing a checkout session, retrieve the outcome of the checkout session and persist it immediately.
+      description: After completing a checkout session, retrieve the outcome of the
+        checkout session and persist it immediately.
       operationId: get-post-checkout-session-details
       parameters:
       - description: Stripe Checkout Session ID
@@ -1867,7 +1918,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a checkout session for Stripe. This is used to manage new subscriptions to monetr and offload the complexity of managing subscriptions. **Note:** You cannot create a checkout session if you have an active subscrption.
+      description: Create a checkout session for Stripe. This is used to manage new
+        subscriptions to monetr and offload the complexity of managing subscriptions.
+        **Note:** You cannot create a checkout session if you have an active subscrption.
       operationId: create-checkout-session
       parameters:
       - description: New Checkout Session
@@ -1898,7 +1951,9 @@ paths:
       - Billing
   /billing/portal:
     get:
-      description: Create a Stripe portal session for managing the subscription and return the session Id to the client. The client can then redirect the user to this session to manage the monetr subscription completely within Stripe.
+      description: Create a Stripe portal session for managing the subscription and
+        return the session Id to the client. The client can then redirect the user
+        to this session to manage the monetr subscription completely within Stripe.
       operationId: get-stripe-portal
       produces:
       - application/json
@@ -1924,7 +1979,8 @@ paths:
       - Billing
   /config:
     get:
-      description: Provides the configuration that should be used by the frontend application or UI.
+      description: Provides the configuration that should be used by the frontend
+        application or UI.
       operationId: app-config
       produces:
       - application/json
@@ -1938,7 +1994,9 @@ paths:
       - Config
   /health:
     get:
-      description: Just a simple health check endpoint. This is not used at all in the frontend of the application and is meant to be used in containers to determine if the primary API listener is working.
+      description: Just a simple health check endpoint. This is not used at all in
+        the frontend of the application and is meant to be used in containers to determine
+        if the primary API listener is working.
       operationId: api-health
       produces:
       - application/json
@@ -2057,7 +2115,9 @@ paths:
         be properly deleted. Then you should poll the `/link/wait` endpoint.
       operationId: delete-manual-link
       parameters:
-      - description: 'Link ID for the plaid link that is being setup. NOTE: Not Plaid''s ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.'
+      - description: 'Link ID for the plaid link that is being setup. NOTE: Not Plaid''s
+          ID, this is a numeric ID we assign to the object that is returned from the
+          callback endpoint.'
         in: path
         name: linkId
         required: true
@@ -2208,10 +2268,13 @@ paths:
       - Links
   /plaid/link/setup/wait/{linkId:uint64}:
     get:
-      description: Long poll endpoint that will timeout if data has not yet been pulled. Or will return 200 if data is ready.
+      description: Long poll endpoint that will timeout if data has not yet been pulled.
+        Or will return 200 if data is ready.
       operationId: wait-for-plaid-data
       parameters:
-      - description: 'Link ID for the plaid link that is being setup. NOTE: Not Plaid''s ID, this is a numeric ID we assign to the object that is returned from the callback endpoint.'
+      - description: 'Link ID for the plaid link that is being setup. NOTE: Not Plaid''s
+          ID, this is a numeric ID we assign to the object that is returned from the
+          callback endpoint.'
         in: path
         name: linkId
         required: true
@@ -2230,7 +2293,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Receives the public token after a user has authenticated their bank account to exchange with plaid.
+      description: Receives the public token after a user has authenticated their
+        bank account to exchange with plaid.
       operationId: plaid-token-callback
       parameters:
       - description: New token callback request.
@@ -2257,10 +2321,13 @@ paths:
       - Plaid
   /plaid/token/new:
     get:
-      description: Generates a link token from Plaid to be used to authenticate a user's bank account with our application.
+      description: Generates a link token from Plaid to be used to authenticate a
+        user's bank account with our application.
       operationId: new-plaid-token
       parameters:
-      - description: If true, the API will check and see if a plaid link token already exists for the current user. If one is present then it is returned instead of creating a new link token.
+      - description: If true, the API will check and see if a plaid link token already
+          exists for the current user. If one is present then it is returned instead
+          of creating a new link token.
         in: query
         name: use_cache
         type: boolean
@@ -2282,10 +2349,12 @@ paths:
       - Plaid
   /plaid/update/{linkId:uint64}:
     put:
-      description: Update an existing Plaid link, this can be used to re-authenticate a link if it requires it or to potentially solve an error state.
+      description: Update an existing Plaid link, this can be used to re-authenticate
+        a link if it requires it or to potentially solve an error state.
       operationId: update-plaid-link
       parameters:
-      - description: The Link Id that you wish to put into update mode, must be a Plaid link.
+      - description: The Link Id that you wish to put into update mode, must be a
+          Plaid link.
         in: path
         name: linkId
         required: true
@@ -2310,7 +2379,10 @@ paths:
     post:
       consumes:
       - application/json
-      description: This is used when handling an update flow for a Plaid link. Rather than returning the public token to the normal callback endpoint, this one should be used instead. This one assumes the link already exists and handles it slightly differently than it would for a new link.
+      description: This is used when handling an update flow for a Plaid link. Rather
+        than returning the public token to the normal callback endpoint, this one
+        should be used instead. This one assumes the link already exists and handles
+        it slightly differently than it would for a new link.
       operationId: updated-token-callback
       parameters:
       - description: Update token callback request.
@@ -2342,5 +2414,6 @@ securityDefinitions:
     type: apiKey
 swagger: "2.0"
 tags:
-- description: Funding Schedules are created by the user to tell us when money should be taken from their account to fund their goals and expenses.
+- description: Funding Schedules are created by the user to tell us when money should
+    be taken from their account to fund their goals and expenses.
   name: Funding Schedules
